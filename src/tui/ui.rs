@@ -22,6 +22,15 @@ fn panel(title: &str) -> Block<'_> {
 }
 
 pub fn render(f: &mut Frame, app: &mut App) {
+    if f.area().width < 40 || f.area().height < 12 {
+        f.render_widget(
+            Paragraph::new("Agrandis le terminal (40 colonnes × 12 lignes minimum).")
+                .block(panel("Forge"))
+                .wrap(Wrap { trim: true }),
+            f.area(),
+        );
+        return;
+    }
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
@@ -72,9 +81,9 @@ pub fn render(f: &mut Frame, app: &mut App) {
 fn render_home(f: &mut Frame, app: &App, area: Rect) {
     let sections = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Length(6), Constraint::Min(0)])
+        .constraints([Constraint::Length(9), Constraint::Min(0)])
         .split(area);
-    f.render_widget(Paragraph::new("Bienvenue dans Forge. Choisis un langage, ouvre un exercice, écris ton code et suis tes progrès directement ici.")
+    f.render_widget(Paragraph::new("Bienvenue dans Forge !\n\n1. Choisis Java ou Rust.  2. Lis la mini-leçon et l'objectif.  3. Modifie le code de départ.\n4. Lance avec Ctrl+R, lis le résultat, puis avance à ton rythme. Tes brouillons sont sauvegardés.")
         .block(panel("Bienvenue")).wrap(Wrap { trim: true }), sections[0]);
     let languages = app.languages();
     let items: Vec<ListItem> = languages
@@ -110,9 +119,14 @@ fn render_home(f: &mut Frame, app: &App, area: Rect) {
     let message = if items.is_empty() {
         "Aucun exercice trouvé. Vérifie le dossier exercises."
     } else {
-        "Choisis ton parcours"
+        "Choisis ton parcours (Entrée pour continuer)"
     };
-    f.render_widget(List::new(items).block(panel(message)), sections[1]);
+    let mut list = items;
+    list.push(ListItem::new(""));
+    list.push(ListItem::new(
+        "Commandes utiles : forge progress · forge doctor · forge help",
+    ));
+    f.render_widget(List::new(list).block(panel(message)), sections[1]);
 }
 
 fn render_list(f: &mut Frame, app: &App, area: Rect) {
@@ -162,7 +176,7 @@ fn render_list(f: &mut Frame, app: &App, area: Rect) {
             Status::InProgress => "En cours",
             Status::NotStarted => "À commencer",
         };
-        let details = format!("{}\n\n{}  •  {}  •  {}\n\n{}\n\n{} indice(s) disponibles\n\nEntrée pour ouvrir l'éditeur", ex.title, ex.language.to_uppercase(), ex.difficulty, status, ex.description, ex.hints.len());
+        let details = format!("{}\n\n{}  •  {}  •  {}\n\nMini-cours : {}\n\nObjectif : {}\n\nAstuce : {}\n\n{} indice(s) disponibles\n\nEntrée pour ouvrir l'éditeur", ex.title, ex.language.to_uppercase(), ex.difficulty, status, ex.lesson, ex.description, ex.tip, ex.hints.len());
         f.render_widget(
             Paragraph::new(details)
                 .block(panel("Détails de l'exercice"))
@@ -174,9 +188,8 @@ fn render_list(f: &mut Frame, app: &App, area: Rect) {
 
 fn render_editor(f: &mut Frame, app: &mut App, area: Rect) {
     let ex = app.selected_exercise().cloned();
-    let min_height = area.height;
-    let upper = if min_height < 16 { 4 } else { 7 };
-    let lower = if min_height < 16 { 4 } else { 8 };
+    let upper = if area.height < 18 { 4 } else { 9 };
+    let lower = if area.height < 15 { 4 } else { 8 };
     let parts = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
@@ -189,17 +202,19 @@ fn render_editor(f: &mut Frame, app: &mut App, area: Rect) {
         let hint = if app.revealed_hints == 0 {
             "F2 pour révéler un indice".to_string()
         } else {
-            format!(
-                "Indice {}/{} : {}",
-                app.revealed_hints,
-                ex.hints.len(),
-                ex.hints[app.revealed_hints - 1]
+            ex.hints.get(app.revealed_hints - 1).map_or_else(
+                || "Aucun indice disponible".to_string(),
+                |hint| format!("Indice {}/{} : {hint}", app.revealed_hints, ex.hints.len()),
             )
         };
-        let text = format!(
-            "{}  ·  {}\n{}\n\n{}",
-            ex.title, ex.difficulty, ex.description, hint
-        );
+        let text = if area.height < 18 {
+            format!("{} · {}\n{}", ex.title, ex.description, hint)
+        } else {
+            format!(
+                "{} · {}\n{}\nLeçon : {}\nAstuce : {}\n{}",
+                ex.title, ex.difficulty, ex.description, ex.lesson, ex.tip, hint
+            )
+        };
         f.render_widget(
             Paragraph::new(text)
                 .block(panel("Objectif & indices"))
@@ -218,7 +233,11 @@ fn render_editor(f: &mut Frame, app: &mut App, area: Rect) {
         &mut app.editor_state,
     );
     let bottom = Layout::default()
-        .direction(Direction::Horizontal)
+        .direction(if area.width < 80 {
+            Direction::Vertical
+        } else {
+            Direction::Horizontal
+        })
         .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
         .split(parts[2]);
     f.render_widget(

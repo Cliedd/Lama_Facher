@@ -1,16 +1,17 @@
 id: java_20_inheritance
-title: Override a greeting
+title: Personnaliser un message hérité
 language: java
-difficulty: Intermediate
-chapter: 06 · Designing reusable code
-lesson: A subclass can override an inherited method; dynamic dispatch uses the object's implementation.
-description: Override message() in Friendly so it prints Hello, Ada!.
-tip: Keep the same method signature as the parent.
+difficulty: Intermédiaire
+chapter: 06 · Concevoir du code réutilisable
+lesson: Une classe enfant peut remplacer une méthode de sa classe parent en gardant le même
+  nom et le même type de retour.
+description: Dans Friendly, remplace message() pour qu'elle renvoie « Hello, Ada! ».
+tip: Garde la même signature que dans Greeting.
 template: "public class Main {\n    public static void main(String[] args) {\n        Greeting\
   \ greeting = new Friendly();\n        System.out.println(greeting.message());\n    }\n}\n\
   class Greeting { String message() { return \"Hello\"; } }\nclass Friendly extends Greeting\
   \ {\n    // TODO: Override message() to add Ada.\n}\n"
 expected_output: Hello, Ada!
 hints:
-- Declare String message() in Friendly.
-- Return "Hello, Ada!" from the override.
+- Déclare String message() dans Friendly.
+- Renvoie "Hello, Ada!" depuis cette méthode.

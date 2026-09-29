@@ -1,14 +1,20 @@
 id: rust_30_report
-title: Build a compact report
+title: Créer un petit bilan
 language: rust
-difficulty: Intermediate
-chapter: 08 · Small programs
-lesson: A report combines filtering and formatting after calculating its summary.
-description: Count values above 10 and print high=<count>.
-tip: Calculate high from values, then use the provided format string.
+difficulty: Intermédiaire
+chapter: 08 · Petits programmes
+lesson: Un bilan calcule d'abord un résultat, puis l'insère dans une ligne de texte.
+description: Compte les valeurs strictement supérieures à 10 et affiche high=<nombre>.
+tip: Calcule high depuis values et garde le format d'affichage fourni. Garde les données fournies
+  pour les autres vérifications.
 template: "fn main() {\n    let values = [4, 12, 15, 8, 20];\n    let mut high = 0;\n    //\
   \ TODO: Count values above 10.\n    println!(\"high={high}\");\n}\n"
 expected_output: high=3
 hints:
-- Loop over values and compare each value with 10.
-- Increment high for each value > 10.
+- Parcours values et compare chaque valeur à 10.
+- Augmente high pour chaque valeur > 10.
+test_cases:
+- name: threshold boundary
+  replace: '[4, 12, 15, 8, 20]'
+  with: '[10, 11, 12]'
+  expected_output: high=2

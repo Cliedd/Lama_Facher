@@ -1,15 +1,15 @@
 id: rust_24_collect
-title: Collect uppercase names
+title: Créer une liste de noms en majuscules
 language: rust
-difficulty: Intermediate
-chapter: 07 · Safer transformations
-lesson: collect builds a collection from an iterator; map transforms each element first.
-description: Convert all names to uppercase and print the second one.
-tip: Specify Vec<String> as the output collection type.
+difficulty: Intermédiaire
+chapter: 07 · Transformations sûres
+lesson: map() transforme chaque nom ; collect() rassemble les résultats dans une nouvelle collection.
+description: Mets tous les noms de names en majuscules, puis affiche le deuxième.
+tip: Indique Vec<String> comme type de la nouvelle liste.
 template: "fn main() {\n    let names = [\"ada\", \"lin\"];\n    // TODO: Collect uppercase\
   \ names into a Vec<String> named upper.\n    println!(\"{}\", names[1]);\n}\n"
 expected_output: LIN
 hints:
-- Map each name with to_uppercase().
-- 'Use let upper: Vec<String> = names.iter().map(|name| name.to_uppercase()).collect(); and
-  print upper[1].'
+- Transforme chaque nom avec to_uppercase().
+- 'Utilise let upper: Vec<String> = names.iter().map(|name| name.to_uppercase()).collect();
+  puis affiche upper[1].'

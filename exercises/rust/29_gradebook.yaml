@@ -1,15 +1,16 @@
 id: rust_29_gradebook
-title: Count passing students
+title: Compter les élèves qui réussissent
 language: rust
-difficulty: Intermediate
-chapter: 08 · Small programs
-lesson: Iterating over map values lets a gradebook count passing scores regardless of names.
-description: Print how many students scored at least 50.
-tip: The pass threshold is inclusive.
+difficulty: Intermédiaire
+chapter: 08 · Petits programmes
+lesson: grades associe chaque élève à son score. values() permet de parcourir seulement les
+  scores.
+description: Affiche combien d'élèves ont un score d'au moins 50.
+tip: Le score 50 compte aussi comme une réussite.
 template: "use std::collections::HashMap;\nfn main() {\n    let grades = HashMap::from([(\"\
   Ada\", 80), (\"Lin\", 49), (\"Mia\", 50)]);\n    let mut passed = 0;\n    // TODO: Count grades\
   \ of at least 50.\n    println!(\"{passed}\");\n}\n"
 expected_output: '2'
 hints:
-- Loop through grades.values().
-- Increment passed when *score >= 50.
+- Parcours grades.values().
+- Augmente passed quand *score >= 50.

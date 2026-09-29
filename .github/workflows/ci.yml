@@ -43,6 +43,9 @@ jobs:
           cargo test --locked
       - name: Build release binary
         run: cargo build --release --locked
+      - name: Smoke test TUI in a pseudo-terminal
+        if: runner.os != 'Windows'
+        run: python3 tests/tui_pty.py target/release/forge
       - name: Check installer syntax
         if: runner.os != 'Windows'
         run: bash -n install.sh

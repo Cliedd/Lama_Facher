@@ -22,14 +22,59 @@ pub struct Exercise {
     pub expected_output: Option<String>,
     #[serde(default)]
     pub test_code: Option<String>,
+    /// Additional inputs checked after the primary expected_output. Optional for old catalogs.
+    #[serde(default)]
+    pub test_cases: Vec<ExerciseTestCase>,
     #[serde(default)]
     pub hints: Vec<String>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ExerciseTestCase {
+    pub name: String,
+    /// An exact, unique piece of the learner's source to replace for this case.
+    pub replace: String,
+    pub with: String,
+    pub expected_output: String,
+}
+
+impl ExerciseTestCase {
+    pub fn source_for(&self, source: &str) -> Result<String> {
+        if self.replace.is_empty() || source.matches(&self.replace).count() != 1 {
+            return Err(ForgeError::Generic(format!(
+                "Test case '{}': replacement must occur exactly once in the solution",
+                self.name
+            )));
+        }
+        Ok(source.replacen(&self.replace, &self.with, 1))
+    }
+}
+
 impl Exercise {
+    fn validate_cases(&self) -> Result<()> {
+        let mut names = HashSet::new();
+        for case in &self.test_cases {
+            if case.name.trim().is_empty() || !names.insert(case.name.as_str()) {
+                return Err(ForgeError::Generic(format!(
+                    "exercise '{}': test case names must be nonempty and unique",
+                    self.id
+                )));
+            }
+            if case.replace.is_empty() || case.replace == case.with {
+                return Err(ForgeError::Generic(format!(
+                    "exercise '{}': test case '{}' must change a nonempty source fragment",
+                    self.id, case.name
+                )));
+            }
+            case.source_for(&self.template)?;
+        }
+        Ok(())
+    }
+
     pub fn load_from_file(path: &Path) -> Result<Self> {
         let content = std::fs::read_to_string(path)?;
         let exercise: Exercise = serde_yaml::from_str(&content)?;
+        exercise.validate_cases()?;
         Ok(exercise)
     }
 

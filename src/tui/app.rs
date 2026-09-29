@@ -1,9 +1,24 @@
 use crate::compiler::diagnostics::Diagnostic;
+use crate::core::errors::Result;
 use crate::core::exercise::Exercise;
 use crate::core::progress::{Status, UserProgress};
+use crate::core::session::Session;
 use crate::lang;
 use crate::storage::local::LocalStorage;
 use crate::tui::widgets::editor::EditorState;
+use std::sync::mpsc::{self, Receiver, TryRecvError};
+
+struct RunOutcome {
+    compiled: crate::lang::traits::CompileOutput,
+    run: Option<crate::lang::traits::RunOutput>,
+    verified: bool,
+}
+
+pub struct PendingRun {
+    receiver: Receiver<Result<RunOutcome>>,
+    exercise: Exercise,
+    code: String,
+}
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum AppMode {
@@ -29,6 +44,7 @@ pub struct App {
     pub revealed_hints: usize,
     pub has_run: bool,
     pub should_quit: bool,
+    pub pending: Option<PendingRun>,
 }
 
 impl App {
@@ -52,6 +68,7 @@ impl App {
             revealed_hints: 0,
             has_run: false,
             should_quit: false,
+            pending: None,
         })
     }
 
@@ -133,7 +150,7 @@ impl App {
     }
 
     pub fn compile_current(&mut self) {
-        if self.mode != AppMode::Editor {
+        if self.mode != AppMode::Editor || self.pending.is_some() {
             return;
         }
         let ex = match self.selected_exercise() {
@@ -143,67 +160,114 @@ impl App {
         self.has_run = true;
         self.diagnostics.clear();
         self.current_output.clear();
-        self.feedback = "Compilation...".into();
-        if let Some(adapter) = lang::get_adapter(&ex.language) {
-            let code = self.editor_state.get_content();
-            let workdir = match tempfile::tempdir() {
-                Ok(d) => d,
-                Err(e) => {
-                    self.feedback = format!("Espace temporaire indisponible : {e}");
-                    return;
-                }
-            };
-            match adapter.compile(&code, workdir.path()) {
-                Ok(output) => {
-                    self.diagnostics = adapter.parse_errors(&output);
-                    if output.success {
-                        match adapter.run(workdir.path()) {
-                            Ok(run) => {
-                                self.current_output =
-                                    if run.stdout.is_empty() && run.stderr.is_empty() {
-                                        "(aucune sortie)".into()
-                                    } else if run.stderr.is_empty() {
-                                        run.stdout.clone()
-                                    } else {
-                                        format!("{}\n{}", run.stdout, run.stderr)
-                                    };
-                                let expected_matches = ex
-                                    .expected_output
-                                    .as_ref()
-                                    .is_none_or(|expected| run.stdout.trim() == expected.trim());
-                                if run.success && expected_matches {
-                                    self.progress.mark_completed(&ex.id, &code);
-                                    self.feedback = "Réussi ! Exercice terminé.".into();
-                                } else if !run.success {
-                                    self.feedback = format!(
-                                        "Le programme a échoué (code {:?}).",
-                                        run.exit_code
-                                    );
-                                } else {
-                                    self.feedback = format!(
-                                        "Sortie différente. Attendu : {}",
-                                        ex.expected_output.as_deref().unwrap_or("")
-                                    );
-                                }
-                            }
-                            Err(e) => self.feedback = format!("Exécution impossible : {e}"),
-                        }
-                    } else {
-                        self.feedback = "Compilation échouée : consulte les diagnostics.".into();
-                        self.current_output = output.stderr;
-                    }
-                }
-                Err(e) => self.feedback = format!("Compilation impossible : {e}"),
-            }
-            if !matches!(self.progress.get_status(&ex.id), Status::Completed) {
-                self.progress.save_draft(&ex.id, &code);
-            }
-            if let Err(e) = self.storage.save_progress(&self.progress) {
-                self.feedback
-                    .push_str(&format!(" Sauvegarde impossible : {e}"));
-            }
-        } else {
+        let Some(adapter) = lang::get_adapter(&ex.language) else {
             self.feedback = format!("Langage non pris en charge : {}", ex.language);
+            return;
+        };
+        let code = self.editor_state.get_content();
+        let (sender, receiver) = mpsc::channel();
+        let exercise = ex.clone();
+        let source = code.clone();
+        std::thread::spawn(move || {
+            let result = (|| {
+                let session = Session::new(exercise, adapter)?;
+                let compiled = session.compile(&source)?;
+                let (run, verified) = if compiled.success {
+                    let run = session.run()?;
+                    let verified = session.verify(&run);
+                    (Some(run), verified)
+                } else {
+                    (None, false)
+                };
+                Ok(RunOutcome {
+                    compiled,
+                    run,
+                    verified,
+                })
+            })();
+            let _ = sender.send(result);
+        });
+        self.pending = Some(PendingRun {
+            receiver,
+            exercise: ex,
+            code,
+        });
+        self.feedback = "Compilation et vérification en cours… F1 aide, Ctrl+Q quitter.".into();
+    }
+
+    pub fn poll_run(&mut self) {
+        let result = match self
+            .pending
+            .as_ref()
+            .map(|pending| pending.receiver.try_recv())
+        {
+            Some(Ok(result)) => result,
+            Some(Err(TryRecvError::Disconnected)) => {
+                self.pending = None;
+                self.feedback = "La vérification s'est interrompue. Réessaie.".into();
+                return;
+            }
+            _ => return,
+        };
+        let pending = self.pending.take().expect("received pending run");
+        let ex = pending.exercise;
+        let code = pending.code;
+        match result {
+            Ok(outcome) => {
+                if let Some(adapter) = lang::get_adapter(&ex.language) {
+                    self.diagnostics = adapter.parse_errors(&outcome.compiled);
+                }
+                if let Some(run) = outcome.run {
+                    self.current_output = if run.stdout.is_empty() && run.stderr.is_empty() {
+                        "(aucune sortie)".into()
+                    } else if run.stderr.is_empty() {
+                        run.stdout.clone()
+                    } else {
+                        format!("{}\n{}", run.stdout, run.stderr)
+                    };
+                    let expected_matches = ex
+                        .expected_output
+                        .as_ref()
+                        .is_none_or(|expected| run.stdout.trim() == expected.trim());
+                    if run.success && outcome.verified {
+                        self.progress.mark_completed(&ex.id, &code);
+                        self.feedback = "Réussi ! Exercice terminé.".into();
+                    } else if !run.success {
+                        self.feedback = match run.exit_code {
+                            Some(code) => format!(
+                                "Programme arrêté avec le code {code}. Lis la sortie ci-dessous."
+                            ),
+                            None => {
+                                "Programme interrompu par le système. Lis la sortie ci-dessous."
+                                    .into()
+                            }
+                        };
+                    } else if !expected_matches {
+                        self.feedback = format!(
+                            "Sortie différente.\nAttendu : {}\nObtenu : {}",
+                            ex.expected_output.as_deref().unwrap_or("(aucune sortie)"),
+                            if run.stdout.trim().is_empty() {
+                                "(aucune sortie)"
+                            } else {
+                                run.stdout.trim()
+                            }
+                        );
+                    } else {
+                        self.feedback = "Le résultat principal est correct, mais un cas supplémentaire a échoué. Vérifie les autres valeurs possibles.".into();
+                    }
+                } else {
+                    self.feedback = "Compilation échouée : consulte les diagnostics.".into();
+                    self.current_output = outcome.compiled.stderr;
+                }
+            }
+            Err(error) => self.feedback = format!("Vérification interrompue : {error}"),
+        }
+        if !matches!(self.progress.get_status(&ex.id), Status::Completed) {
+            self.progress.save_draft(&ex.id, &code);
+        }
+        if let Err(error) = self.storage.save_progress(&self.progress) {
+            self.feedback
+                .push_str(&format!(" Sauvegarde impossible : {error}"));
         }
     }
 

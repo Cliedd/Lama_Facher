@@ -51,6 +51,114 @@ fn rust_program_timeout_is_reported_promptly() {
 }
 
 #[test]
+fn excessive_output_is_stopped_and_reported() {
+    let root = TempDir::new().unwrap();
+    exercise(root.path(), "rust");
+    let source = root.path().join("answer.rs");
+    fs::write(
+        &source,
+        "fn main() { loop { println!(\"{}\", \"x\".repeat(4096)); } }",
+    )
+    .unwrap();
+    let start = Instant::now();
+    let output = forge(root.path(), &source, &[]);
+    assert!(!output.status.success());
+    assert!(start.elapsed() < Duration::from_secs(8));
+    let error = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        error.contains("1024 KiB") && error.contains("output"),
+        "{error}"
+    );
+}
+
+#[test]
+fn combined_stdout_and_stderr_share_the_output_limit() {
+    let root = TempDir::new().unwrap();
+    exercise(root.path(), "rust");
+    let source = root.path().join("answer.rs");
+    fs::write(
+        &source,
+        "fn main() { use std::io::Write; let bytes = vec![b'x'; 600 * 1024]; std::io::stdout().write_all(&bytes).unwrap(); std::io::stderr().write_all(&bytes).unwrap(); }",
+    )
+    .unwrap();
+    let output = forge(root.path(), &source, &[]);
+    assert!(!output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("1024 KiB"));
+}
+
+#[test]
+fn learner_program_does_not_inherit_secrets_and_uses_a_temporary_directory() {
+    let root = TempDir::new().unwrap();
+    exercise(root.path(), "rust");
+    let source = root.path().join("answer.rs");
+    fs::write(
+        &source,
+        "fn main() { assert!(std::env::var_os(\"FORGE_TEST_SECRET\").is_none()); let path = std::env::temp_dir().join(\"learner-probe\"); std::fs::write(&path, b\"ok\").unwrap(); assert_eq!(std::env::current_dir().unwrap(), path.parent().unwrap()); println!(\"done\"); }",
+    )
+    .unwrap();
+    let output = forge(
+        root.path(),
+        &source,
+        &[("FORGE_TEST_SECRET", "private-value")],
+    );
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(!root.path().join("learner-probe").exists());
+}
+
+#[test]
+fn learner_file_creation_is_bounded() {
+    let root = TempDir::new().unwrap();
+    exercise(root.path(), "rust");
+    let source = root.path().join("answer.rs");
+    fs::write(
+        &source,
+        "fn main() { use std::io::Write; let mut f = std::fs::File::create(\"big.bin\").unwrap(); let bytes = vec![0u8; 2 * 1024 * 1024]; if f.write_all(&bytes).is_err() { println!(\"done\"); } }",
+    )
+    .unwrap();
+    let output = forge(root.path(), &source, &[]);
+    assert!(!output.status.success());
+    assert!(!root.path().join("big.bin").exists());
+}
+
+#[test]
+fn relative_files_are_written_in_the_temporary_workdir() {
+    let root = TempDir::new().unwrap();
+    exercise(root.path(), "rust");
+    let source = root.path().join("answer.rs");
+    fs::write(
+        &source,
+        "fn main() { std::fs::write(\"probe.txt\", \"x\").unwrap(); println!(\"done\"); }",
+    )
+    .unwrap();
+    let output = forge(root.path(), &source, &[]);
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(!root.path().join("probe.txt").exists());
+}
+
+#[cfg(target_os = "linux")]
+#[test]
+fn native_program_cannot_reserve_more_than_the_memory_limit() {
+    let root = TempDir::new().unwrap();
+    exercise(root.path(), "rust");
+    let source = root.path().join("answer.rs");
+    fs::write(&source, "fn main() { let mut data: Vec<u8> = Vec::new(); if data.try_reserve_exact(700 * 1024 * 1024).is_err() { println!(\"done\"); } else { println!(\"unlimited\"); } }").unwrap();
+    let output = forge(root.path(), &source, &[]);
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+}
+
+#[test]
 fn rust_compiler_timeout_is_reported_promptly() {
     let root = TempDir::new().unwrap();
     exercise(root.path(), "rust");

@@ -1,14 +1,14 @@
 id: rust_03_strings
-title: Format a greeting
+title: Formater un message de bienvenue
 language: rust
-difficulty: Beginner
-chapter: 01 · First steps
-lesson: println! inserts values into a string through braces. String owns its text.
-description: Print Hello, Ada! using the name variable.
-tip: Put text around the formatting placeholder.
+difficulty: Débutant
+chapter: 01 · Premiers pas
+lesson: println! insère des valeurs grâce aux accolades. String possède son texte.
+description: Affiche « Hello, Ada! » avec la variable name.
+tip: Place du texte autour de la valeur {name}.
 template: "fn main() {\n    let name = String::from(\"Ada\");\n    // TODO: Use name in the\
   \ greeting.\n    println!(\"{name}\");\n}\n"
 expected_output: Hello, Ada!
 hints:
-- Keep {name} inside the format string.
-- Use println!("Hello, {name}!");
+- Garde {name} dans le texte de formatage.
+- Utilise println!("Hello, {name}!");

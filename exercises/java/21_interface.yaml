@@ -1,16 +1,18 @@
 id: java_21_interface
-title: Implement a rule
+title: Appliquer une règle aux nombres
 language: java
-difficulty: Intermediate
-chapter: 06 · Designing reusable code
-lesson: An interface defines a contract; an implementing class supplies the method body.
-description: Make EvenRule.accept(8) print true.
-tip: The modulo operator finds the remainder after division.
+difficulty: Intermédiaire
+chapter: 06 · Concevoir du code réutilisable
+lesson: Une interface annonce une méthode à fournir. Ici, EvenRule doit décider si un nombre
+  est pair.
+description: Complète accept(value) pour que le programme affiche true pour 8 et accepte les
+  nombres pairs.
+tip: L'opérateur % donne le reste d'une division.
 template: "public class Main {\n    public static void main(String[] args) {\n        Rule rule\
   \ = new EvenRule();\n        System.out.println(rule.accept(8));\n    }\n}\ninterface Rule\
   \ { boolean accept(int value); }\nclass EvenRule implements Rule {\n    public boolean accept(int\
   \ value) {\n        // TODO: Accept even numbers only.\n        return false;\n    }\n}\n"
 expected_output: 'true'
 hints:
-- Even numbers leave remainder 0 when divided by 2.
-- Return value % 2 == 0;.
+- Un nombre pair laisse un reste de 0 quand on le divise par 2.
+- Renvoie value % 2 == 0;.

@@ -1,13 +1,13 @@
 id: rust_01_hello
-title: Print your first message
+title: Afficher ton premier message
 language: rust
-difficulty: Beginner
-chapter: 01 · First steps
-lesson: Rust starts in main. println! is a macro that writes one line.
-description: Print Hello, Forge! exactly, including punctuation.
-tip: The exclamation mark belongs to the macro name.
+difficulty: Débutant
+chapter: 01 · Premiers pas
+lesson: Un programme Rust commence dans main. println! est une macro qui affiche une ligne.
+description: Affiche exactement « Hello, Forge! », avec le point d'exclamation.
+tip: Le point d'exclamation fait partie du nom de la macro println!.
 template: "fn main() {\n    // TODO: Print the greeting.\n    println!(\"Replace me\");\n}\n"
 expected_output: Hello, Forge!
 hints:
-- Call println! with a string literal.
-- Put "Hello, Forge!" inside the parentheses.
+- Appelle println! avec un texte entre guillemets.
+- Place « Hello, Forge! » entre les parenthèses.

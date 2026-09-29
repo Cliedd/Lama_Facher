@@ -1,14 +1,16 @@
 id: rust_11_result
-title: Handle a parse error
+title: Gérer une conversion impossible
 language: rust
-difficulty: Intermediate
-chapter: 04 · Real-world patterns
-lesson: parse::<i32>() returns Result; match Ok(value) and Err(_).
-description: Parse invalid input and print invalid without panicking.
-tip: Avoid unwrap() because the input is invalid.
+difficulty: Intermédiaire
+chapter: 04 · Cas concrets
+lesson: parse::<i32>() essaie de lire un entier. Son Result vaut Ok(nombre) si tout va bien,
+  sinon Err(erreur).
+description: Essaie de convertir input. Comme il est invalide, affiche invalid sans faire planter
+  le programme.
+tip: 'Évite unwrap() : ici, la conversion peut échouer.'
 template: "fn main() {\n    let input = \"twelve\";\n    // TODO: Match input.parse::<i32>()\
   \ and handle both cases.\n    println!(\"Replace me\");\n}\n"
 expected_output: invalid
 hints:
-- Match on input.parse::<i32>().
-- Print the number in Ok(value), and "invalid" in Err(_).
+- Fais un match sur input.parse::<i32>().
+- Affiche le nombre dans Ok(value), et "invalid" dans Err(_).

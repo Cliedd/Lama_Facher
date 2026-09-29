@@ -1,11 +1,12 @@
 id: rust_07_borrowing
-title: Borrow without moving
+title: Prêter un texte sans le perdre
 language: rust
-difficulty: Intermediate
-chapter: 03 · Reusable code and data
-lesson: Passing &String lends access without transferring ownership.
-description: Complete length_of so the program prints 5 and then hello on separate lines.
-tip: The caller must still be able to use message afterward.
+difficulty: Intermédiaire
+chapter: 03 · Code et données réutilisables
+lesson: Avec &String, une fonction peut lire un texte sans en devenir propriétaire. Le programme
+  principal peut encore l'utiliser ensuite.
+description: Complète length_of pour afficher 5, puis hello sur la ligne suivante.
+tip: Après l'appel de length_of, message doit toujours être disponible.
 template: "fn length_of(text: &String) -> usize {\n    // TODO: Return the borrowed text length.\n\
   \    0\n}\nfn main() {\n    let message = String::from(\"hello\");\n    println!(\"{}\", length_of(&message));\n\
   \    println!(\"{message}\");\n}\n"
@@ -13,5 +14,5 @@ expected_output: '5
 
   hello'
 hints:
-- String has a len() method.
-- Return text.len() from length_of.
+- String possède une méthode len().
+- Renvoie text.len() depuis length_of.

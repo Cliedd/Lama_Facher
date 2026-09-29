@@ -1,15 +1,21 @@
 id: java_30_report
-title: Build a compact report
+title: Créer un petit bilan
 language: java
-difficulty: Intermediate
-chapter: 08 · Small programs
-lesson: A report often combines filtering, counting, and formatting in one output line.
-description: Count values above 10 and print high=<count>.
-tip: Calculate the count from the data before formatting.
+difficulty: Intermédiaire
+chapter: 08 · Petits programmes
+lesson: Un bilan peut d'abord compter les valeurs choisies, puis afficher le résultat avec un
+  texte.
+description: Compte les nombres de values strictement supérieurs à 10, puis affiche high=<nombre>.
+tip: Calcule high depuis le tableau. Garde les données fournies pour les autres vérifications.
 template: "public class Main {\n    public static void main(String[] args) {\n        int[]\
   \ values = {4, 12, 15, 8, 20};\n        int high = 0;\n        // TODO: Count values above\
   \ 10.\n        System.out.println(\"high=\" + high);\n    }\n}\n"
 expected_output: high=3
 hints:
-- Loop over values and test value > 10.
-- Increment high for each matching value.
+- Parcours values et teste value > 10.
+- Augmente high pour chaque valeur qui passe le test.
+test_cases:
+- name: threshold boundary
+  replace: '{4, 12, 15, 8, 20}'
+  with: '{10, 11, 12}'
+  expected_output: high=2

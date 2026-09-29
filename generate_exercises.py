@@ -7,14 +7,16 @@ from pathlib import Path
 import re
 import yaml
 
+from curriculum_fr import TEXTES
+
 
 ROOT = Path(__file__).resolve().parent / "exercises"
 LEGACY = re.compile(r"(?:\d{3}_(?:basic|loop|oop|control|structs)_\d+|0[12]_(?:hello_world|variables))\.yaml")
 GENERATED = re.compile(r"\d{2}_[a-z_]+\.yaml")
 CHAPTERS = [
-    "First steps", "Decisions and repetition", "Reusable code and data",
-    "Real-world patterns", "Working with text and collections", "Designing reusable code",
-    "Safer transformations", "Small programs",
+    "Premiers pas", "Décisions et répétitions", "Code et données réutilisables",
+    "Cas concrets", "Textes et collections", "Concevoir du code réutilisable",
+    "Transformations sûres", "Petits programmes",
 ]
 
 
@@ -400,6 +402,31 @@ RUST.extend([
      "high=3", ["Loop over values and compare each value with 10.", "Increment high for each value > 10."]),
 ])
 
+# Extra cases vary the data supplied by the starter. They are distributed with
+# the exercises, so they are additional cases rather than secret tests.
+CASES = {
+    "java": {
+        "variables": [("different values", "int first = 12;", "int first = -4;", "4")],
+        "condition": [("below boundary", "int age = 16;", "int age = 17;", "5"), ("boundary age", "int age = 16;", "int age = 18;", "10"), ("above boundary", "int age = 16;", "int age = 42;", "10")],
+        "method": [("zero argument", "doubleValue(7)", "doubleValue(0)", "0"), ("negative argument", "doubleValue(7)", "doubleValue(-3)", "-6"), ("larger argument", "doubleValue(7)", "doubleValue(11)", "22")],
+        "array": [("all negative", "{4, 9, 2, 7}", "{-8, -2, -11}", "-2")],
+        "project": [("no discount", "{3, 7, 2}", "{3, 4, 2}", "9")],
+        "average": [("uneven average", "{10, 20, 30}", "{5, 6}", "5")],
+        "frequency": [("missing apple", '{"apple", "pear", "apple", "plum", "apple"}', '{"pear", "plum"}', "0")],
+        "report": [("threshold boundary", "{4, 12, 15, 8, 20}", "{10, 11, 12}", "high=2")],
+    },
+    "rust": {
+        "condition": [("below boundary", "let age = 16;", "let age = 17;", "5"), ("boundary age", "let age = 16;", "let age = 18;", "10"), ("above boundary", "let age = 16;", "let age = 42;", "10")],
+        "function": [("zero argument", "double_value(7)", "double_value(0)", "0"), ("negative argument", "double_value(7)", "double_value(-3)", "-6"), ("larger argument", "double_value(7)", "double_value(11)", "22")],
+        "vector": [("all negative", "vec![4, 9, 2, 7]", "vec![-8, -2, -11]", "-2")],
+        "struct": [("different dimensions", "width: 3, height: 4", "width: 5, height: 6", "30")],
+        "project": [("no discount", "vec![3, 7, 2]", "vec![3, 4, 2]", "9")],
+        "average": [("uneven average", "[10, 20, 30]", "[5, 6]", "5")],
+        "hashmap": [("missing apple", '["apple", "pear", "apple", "apple"]', '["pear", "plum"]', "0")],
+        "report": [("threshold boundary", "[4, 12, 15, 8, 20]", "[10, 11, 12]", "high=2")],
+    },
+}
+
 
 def generate(language, catalog):
     if len(catalog) != 30:
@@ -414,6 +441,9 @@ def generate(language, catalog):
             raise ValueError(f"{language}_{slug}: incomplete exercise")
         if "TODO" not in template:
             raise ValueError(f"{language}_{slug}: starter has no TODO")
+        for name, old, _, _ in CASES[language].get(slug, []):
+            if template.count(old) != 1:
+                raise ValueError(f"{language}_{slug}: case {name!r} has no unique source anchor")
     directory = ROOT / language
     directory.mkdir(parents=True, exist_ok=True)
     # The two known legacy naming schemes are the only files removed.
@@ -421,19 +451,27 @@ def generate(language, catalog):
         if LEGACY.fullmatch(path.name) or GENERATED.fullmatch(path.name):
             path.unlink()
     for number, (slug, title, chapter, lesson, task, tip, template, output, hints) in enumerate(catalog, 1):
+        key = f"{language}_{number:02d}_{slug}"
+        title, lesson, task, tip, first_hint, second_hint = TEXTES[key]
         record = {
-            "id": f"{language}_{number:02d}_{slug}",
+            "id": key,
             "title": title,
             "language": language,
-            "difficulty": "Beginner" if chapter <= 2 else "Intermediate",
+            "difficulty": "Débutant" if chapter <= 2 else "Intermédiaire",
             "chapter": f"{chapter:02d} · {CHAPTERS[chapter - 1]}",
             "lesson": lesson,
             "description": task,
             "tip": tip,
             "template": template,
             "expected_output": output,
-            "hints": hints,
+            "hints": [first_hint, second_hint],
         }
+        cases = CASES[language].get(slug, [])
+        if cases:
+            record["test_cases"] = [
+                {"name": name, "replace": old, "with": new, "expected_output": expected}
+                for name, old, new, expected in cases
+            ]
         (directory / f"{number:02d}_{slug}.yaml").write_text(
             yaml.safe_dump(record, sort_keys=False, allow_unicode=True, width=90)
         )

@@ -106,6 +106,7 @@ fn execute(cli: Cli) -> Result<()> {
         Some(Commands::Progress { command }) => match command {
             None => show_progress()?,
             Some(ProgressCommands::Export { format }) => export_progress(format)?,
+            Some(ProgressCommands::Import { file }) => import_progress(file)?,
             Some(ProgressCommands::Reset { exercise, yes }) => reset_progress(exercise, yes)?,
         },
         Some(Commands::Lesson { language: chosen }) => {
@@ -204,6 +205,23 @@ fn export_progress(format: ExportFormat) -> Result<()> {
     match format {
         ExportFormat::Json => println!("{}", serde_json::to_string_pretty(&progress)?),
         ExportFormat::Csv => print!("{}", progress.to_csv()),
+    }
+    Ok(())
+}
+
+fn import_progress(file: PathBuf) -> Result<()> {
+    let report = LocalStorage::new()?
+        .import_progress(&file)
+        .with_context(|| format!("Cannot import progress from {}", file.display()))?;
+    println!(
+        "Import terminé : {} ajouté(s), {} mis à jour, {} inchangé(s).",
+        report.added, report.updated, report.unchanged
+    );
+    if report.code_conflicts > 0 {
+        println!(
+            "{} conflit(s) de code : les brouillons locaux ont été conservés.",
+            report.code_conflicts
+        );
     }
     Ok(())
 }

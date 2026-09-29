@@ -1,11 +1,12 @@
 id: java_28_inventory
-title: Update an inventory
+title: Mettre à jour un stock
 language: java
-difficulty: Intermediate
-chapter: 08 · Small programs
-lesson: A map can represent current stock; getOrDefault makes first updates simple.
-description: Add the deliveries and print the stock of pens.
-tip: Each delivery adds to the existing stock.
+difficulty: Intermédiaire
+chapter: 08 · Petits programmes
+lesson: Une HashMap peut garder la quantité en stock pour chaque objet. Une livraison augmente
+  cette quantité.
+description: Additionne les livraisons de items et amounts, puis affiche le stock de pen.
+tip: Le même objet peut apparaître plusieurs fois.
 template: "import java.util.HashMap;\npublic class Main {\n    public static void main(String[]\
   \ args) {\n        String[] items = {\"pen\", \"book\", \"pen\"};\n        int[] amounts =\
   \ {2, 3, 4};\n        HashMap<String, Integer> stock = new HashMap<>();\n        // TODO:\
@@ -13,5 +14,5 @@ template: "import java.util.HashMap;\npublic class Main {\n    public static voi
   \    }\n}\n"
 expected_output: '6'
 hints:
-- Use the same index for items and amounts.
-- Use stock.put(items[i], stock.getOrDefault(items[i], 0) + amounts[i]).
+- Utilise le même indice dans items et amounts.
+- Utilise stock.put(items[i], stock.getOrDefault(items[i], 0) + amounts[i]).

@@ -1,15 +1,15 @@
 id: java_03_strings
-title: Build a greeting
+title: Construire un message de bienvenue
 language: java
-difficulty: Beginner
-chapter: 01 · First steps
-lesson: The + operator joins strings; spaces and punctuation must be included.
-description: Print Hello, Ada! using the name variable.
-tip: Join a prefix, the variable, and punctuation.
+difficulty: Débutant
+chapter: 01 · Premiers pas
+lesson: L'opérateur + assemble des textes. Les espaces et la ponctuation comptent.
+description: Affiche « Hello, Ada! » en utilisant la variable name.
+tip: Assemble le début du message, la variable et le point d'exclamation.
 template: "public class Main {\n    public static void main(String[] args) {\n        String\
   \ name = \"Ada\";\n        // TODO: Use name in the greeting.\n        System.out.println(name);\n\
   \    }\n}\n"
 expected_output: Hello, Ada!
 hints:
-- Join strings with +.
-- Print "Hello, " + name + "!".
+- Assemble les textes avec +.
+- Affiche "Hello, " + name + "!".

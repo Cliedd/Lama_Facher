@@ -1,14 +1,15 @@
 id: rust_21_option
-title: Use a missing-value fallback
+title: Prévoir un nom de secours
 language: rust
-difficulty: Intermediate
-chapter: 07 · Safer transformations
-lesson: Option<T> represents Some(value) or None; unwrap_or supplies a default.
-description: Print Guest when the optional name is absent.
-tip: Do not unwrap a None value.
+difficulty: Intermédiaire
+chapter: 07 · Transformations sûres
+lesson: Option<T> vaut Some(valeur) ou None. unwrap_or() donne une valeur de secours quand il
+  n'y en a pas.
+description: Quand name est absent, affiche exactement « Guest ».
+tip: 'N''appelle pas unwrap() sur None : cela ferait échouer le programme.'
 template: "fn main() {\n    let name: Option<&str> = None;\n    // TODO: Print a fallback for\
   \ None.\n    println!(\"Replace me\");\n}\n"
 expected_output: Guest
 hints:
-- Call unwrap_or on name.
-- Print name.unwrap_or("Guest").
+- Appelle unwrap_or() sur name.
+- Affiche name.unwrap_or("Guest").

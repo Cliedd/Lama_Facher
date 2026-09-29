@@ -1,15 +1,16 @@
 id: java_15_split
-title: Count comma-separated items
+title: Compter des éléments séparés
 language: java
-difficulty: Intermediate
-chapter: 05 · Working with text and collections
-lesson: split turns text into an array using a separator; length counts the parts.
-description: Print how many languages are in the line.
-tip: The separator is a literal comma in this example.
+difficulty: Intermédiaire
+chapter: 05 · Textes et collections
+lesson: split() découpe un texte à chaque séparateur. Le résultat est un tableau dont length
+  donne la taille.
+description: La ligne contient des langages séparés par des virgules. Affiche leur nombre.
+tip: Le séparateur à utiliser ici est une virgule.
 template: "public class Main {\n    public static void main(String[] args) {\n        String\
   \ line = \"Java,Rust,Go\";\n        // TODO: Split the line and count its parts.\n       \
   \ System.out.println(0);\n    }\n}\n"
 expected_output: '3'
 hints:
-- Call line.split(",") to get a String array.
-- Print line.split(",").length.
+- Utilise line.split(",") pour obtenir un tableau.
+- Affiche line.split(",").length.

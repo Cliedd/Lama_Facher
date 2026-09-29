@@ -1,15 +1,17 @@
 id: java_11_exception
-title: Handle invalid input
+title: Gérer une saisie invalide
 language: java
-difficulty: Intermediate
-chapter: 04 · Real-world patterns
-lesson: Integer.parseInt converts text to int and can throw NumberFormatException.
-description: Catch the invalid input and print invalid without crashing.
-tip: Catch the specific exception rather than every Exception.
+difficulty: Intermédiaire
+chapter: 04 · Cas concrets
+lesson: Integer.parseInt transforme un texte en entier. Si le texte n'est pas un nombre, une
+  NumberFormatException se produit.
+description: Essaie de convertir input. Si la conversion échoue, affiche exactement « invalid
+  » sans arrêter le programme.
+tip: Intercepte NumberFormatException dans un bloc catch.
 template: "public class Main {\n    public static void main(String[] args) {\n        String\
   \ input = \"twelve\";\n        // TODO: Parse in a try block and handle the error.\n     \
   \   System.out.println(\"Replace me\");\n    }\n}\n"
 expected_output: invalid
 hints:
-- Try Integer.parseInt(input).
-- In catch (NumberFormatException e), print "invalid".
+- Place Integer.parseInt(input) dans un bloc try.
+- Dans catch (NumberFormatException e), affiche "invalid".

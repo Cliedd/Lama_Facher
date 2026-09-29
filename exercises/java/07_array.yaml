@@ -1,15 +1,21 @@
 id: java_07_array
-title: Find the largest number
+title: Trouver le plus grand nombre
 language: java
-difficulty: Intermediate
-chapter: 03 · Reusable code and data
-lesson: An array groups values of one type; length gives its element count.
-description: Find the maximum in {4, 9, 2, 7}.
-tip: Start maximum at the first element so negative inputs work too.
+difficulty: Intermédiaire
+chapter: 03 · Code et données réutilisables
+lesson: Un tableau range plusieurs nombres dans un ordre. length donne le nombre d'éléments.
+description: Trouve le plus grand nombre de {4, 9, 2, 7}, puis affiche-le.
+tip: 'Commence avec numbers[0] : cela marche aussi si tous les nombres sont négatifs. Garde
+  les données fournies pour les autres vérifications.'
 template: "public class Main {\n    public static void main(String[] args) {\n        int[]\
   \ numbers = {4, 9, 2, 7};\n        int maximum = numbers[0];\n        // TODO: Visit each\
   \ number and update maximum.\n        System.out.println(maximum);\n    }\n}\n"
 expected_output: '9'
 hints:
-- Loop while i < numbers.length.
-- If numbers[i] > maximum, assign numbers[i] to maximum.
+- Parcours le tableau tant que i < numbers.length.
+- Si numbers[i] > maximum, mets numbers[i] dans maximum.
+test_cases:
+- name: all negative
+  replace: '{4, 9, 2, 7}'
+  with: '{-8, -2, -11}'
+  expected_output: '-2'

@@ -1,15 +1,15 @@
 id: java_05_loop
-title: Sum a short sequence
+title: Additionner une petite suite
 language: java
-difficulty: Beginner
-chapter: 02 · Decisions and repetition
-lesson: A for loop initializes a counter, checks a condition, then updates the counter.
-description: Add the numbers 1 through 5 and print the total.
-tip: Check that your loop includes both endpoints.
+difficulty: Débutant
+chapter: 02 · Décisions et répétitions
+lesson: Une boucle for initialise un compteur, vérifie une condition, puis le fait avancer.
+description: Additionne les nombres de 1 à 5 et affiche le total.
+tip: Vérifie que ta boucle inclut bien 1 et 5.
 template: "public class Main {\n    public static void main(String[] args) {\n        int total\
   \ = 0;\n        // TODO: Add 1 through 5 with a for loop.\n        System.out.println(total);\n\
   \    }\n}\n"
 expected_output: '15'
 hints:
-- Loop from i = 1 while i <= 5.
-- Inside the loop, update total with total += i.
+- Pars de i = 1 et continue tant que i <= 5.
+- Dans la boucle, augmente total avec total += i.

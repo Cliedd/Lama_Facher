@@ -5,6 +5,7 @@ pub mod widgets;
 use crate::core::path_manager::PathManager;
 use app::{App, AppMode};
 use crossterm::{
+    cursor::Show,
     event::{
         self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind, KeyModifiers,
     },
@@ -14,26 +15,34 @@ use crossterm::{
 use ratatui::{backend::CrosstermBackend, Terminal};
 use std::io;
 
+struct RestoreTerminal;
+
+impl Drop for RestoreTerminal {
+    fn drop(&mut self) {
+        let _ = disable_raw_mode();
+        let _ = execute!(
+            io::stdout(),
+            Show,
+            LeaveAlternateScreen,
+            DisableMouseCapture
+        );
+    }
+}
+
 pub fn run_tui() -> crate::core::errors::Result<()> {
     PathManager::ensure_toolchain_paths();
     let mut app = App::new()?;
     enable_raw_mode()?;
+    let restore = RestoreTerminal;
     let mut stdout = io::stdout();
     execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
-    let res = main_loop(&mut terminal, &mut app);
-
-    disable_raw_mode()?;
-    execute!(
-        terminal.backend_mut(),
-        LeaveAlternateScreen,
-        DisableMouseCapture
-    )?;
-    terminal.show_cursor()?;
-
-    res
+    let result = main_loop(&mut terminal, &mut app);
+    drop(terminal);
+    drop(restore);
+    result
 }
 
 fn main_loop<B: ratatui::backend::Backend>(
@@ -41,6 +50,7 @@ fn main_loop<B: ratatui::backend::Backend>(
     app: &mut App,
 ) -> crate::core::errors::Result<()> {
     loop {
+        app.poll_run();
         terminal.draw(|f| ui::render(f, app))?;
 
         if event::poll(std::time::Duration::from_millis(100))? {
@@ -62,6 +72,7 @@ fn main_loop<B: ratatui::backend::Backend>(
                 }
                 if key.code == KeyCode::Char('q') && key.modifiers.contains(KeyModifiers::CONTROL) {
                     app.should_quit = true;
+                    break;
                 }
 
                 match app.mode {
@@ -90,12 +101,16 @@ fn main_loop<B: ratatui::backend::Backend>(
                         _ => {}
                     },
                     AppMode::Editor => {
-                        if key.code == KeyCode::Esc {
+                        if app.pending.is_some() {
+                            continue;
+                        } else if key.code == KeyCode::Esc {
                             app.save_draft();
                             app.mode = AppMode::List;
                         } else if key.code == KeyCode::Char('r')
                             && key.modifiers.contains(KeyModifiers::CONTROL)
                         {
+                            app.feedback = "Compilation et vérification en cours…".into();
+                            terminal.draw(|f| ui::render(f, app))?;
                             app.compile_current();
                         } else if key.code == KeyCode::Char('s')
                             && key.modifiers.contains(KeyModifiers::CONTROL)

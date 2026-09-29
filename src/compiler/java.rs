@@ -18,7 +18,11 @@ impl JavaCompiler {
         std::fs::write(&file_path, code)?;
 
         let output = run_command(
-            Command::new("javac").arg("-d").arg(workdir).arg(&file_path),
+            Command::new("javac")
+                .arg("-d")
+                .arg(workdir)
+                .arg(&file_path)
+                .current_dir(workdir),
             Phase::Compile,
         );
 
@@ -48,7 +52,14 @@ impl JavaCompiler {
 
     pub fn run(&self, workdir: &Path) -> Result<RunOutput> {
         let output = run_command(
-            Command::new("java").arg("-cp").arg(workdir).arg("Main"),
+            Command::new("java")
+                .arg("-Xmx256m")
+                .arg("-XX:MaxMetaspaceSize=128m")
+                .arg(format!("-Djava.io.tmpdir={}", workdir.display()))
+                .arg("-cp")
+                .arg(workdir)
+                .arg("Main")
+                .current_dir(workdir),
             Phase::Run,
         );
 

@@ -24,7 +24,8 @@ impl RustCompiler {
                 .arg("--error-format=json")
                 .arg("-o")
                 .arg(&exe_path)
-                .arg(&file_path),
+                .arg(&file_path)
+                .current_dir(workdir),
             Phase::Compile,
         );
 
@@ -50,7 +51,10 @@ impl RustCompiler {
 
     pub fn run(&self, workdir: &Path) -> Result<RunOutput> {
         let exe_path = workdir.join("main_bin");
-        let output = run_command(&mut Command::new(&exe_path), Phase::Run);
+        let output = run_command(
+            &mut Command::new(&exe_path).current_dir(workdir),
+            Phase::Run,
+        );
 
         match output {
             Ok(out) => Ok(RunOutput {

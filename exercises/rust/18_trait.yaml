@@ -1,15 +1,15 @@
 id: rust_18_trait
-title: Implement a trait
+title: Donner une étiquette à une valeur
 language: rust
-difficulty: Intermediate
-chapter: 06 · Designing reusable code
-lesson: A trait defines shared behavior; impl provides it for a concrete type.
-description: Make Meter.label() print 5 m.
-tip: format! builds a String without printing it.
+difficulty: Intermédiaire
+chapter: 06 · Concevoir du code réutilisable
+lesson: Un trait décrit un comportement commun. impl fournit ce comportement pour un type précis.
+description: Complète label() pour que Meter affiche exactement « 5 m ».
+tip: format! construit un String sans l'afficher.
 template: "trait Label { fn label(&self) -> String; }\nstruct Meter(i32);\nimpl Label for Meter\
   \ {\n    fn label(&self) -> String {\n        // TODO: Format the value with its unit.\n \
   \       String::new()\n    }\n}\nfn main() {\n    println!(\"{}\", Meter(5).label());\n}\n"
 expected_output: 5 m
 hints:
-- Read the tuple struct field with self.0.
-- Return format!("{} m", self.0).
+- Lis la valeur de cette struct tuple avec self.0.
+- Renvoie format!("{} m", self.0).

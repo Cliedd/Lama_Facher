@@ -1,14 +1,14 @@
 id: rust_23_filter
-title: Keep even values
+title: Garder seulement les nombres pairs
 language: rust
-difficulty: Intermediate
-chapter: 07 · Safer transformations
-lesson: filter retains iterator elements for which a predicate returns true.
-description: Count the even numbers and print the count.
-tip: iter() lends references to the array elements.
+difficulty: Intermédiaire
+chapter: 07 · Transformations sûres
+lesson: filter() garde les éléments d'un itérateur qui respectent une règle. count() les compte.
+description: Compte les nombres pairs de numbers et affiche le résultat.
+tip: iter() lit les valeurs du tableau sans les déplacer.
 template: "fn main() {\n    let numbers = [1, 2, 3, 4, 6];\n    // TODO: Filter even values\
   \ and count them.\n    println!(\"0\");\n}\n"
 expected_output: '3'
 hints:
-- Start with numbers.iter().
-- Use filter(|n| *n % 2 == 0).count().
+- Commence avec numbers.iter().
+- Utilise filter(|n| *n % 2 == 0).count().

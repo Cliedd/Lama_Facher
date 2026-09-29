@@ -1,14 +1,14 @@
 id: rust_10_enum
-title: Match every status
+title: Réagir à chaque état
 language: rust
-difficulty: Intermediate
-chapter: 04 · Real-world patterns
-lesson: An enum names variants; match must cover every possible variant.
-description: Print ready for Status::Ready, and busy for Status::Busy.
-tip: Pattern matching translates states into user-facing text.
+difficulty: Intermédiaire
+chapter: 04 · Cas concrets
+lesson: Un enum énumère plusieurs états possibles. match choisit une action pour chacun d'eux.
+description: Affiche ready pour Status::Ready et busy pour Status::Busy.
+tip: Un match doit traiter tous les états de Status.
 template: "enum Status { Ready, Busy }\nfn main() {\n    let status = Status::Ready;\n    //\
   \ TODO: Match status and print the matching text.\n    println!(\"unknown\");\n}\n"
 expected_output: ready
 hints:
-- Use match status with two arms.
-- Call println!("ready") in the Ready arm and println!("busy") in the Busy arm.
+- Utilise match status avec deux branches.
+- Appelle println!("ready") pour Ready et println!("busy") pour Busy.

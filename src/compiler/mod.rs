@@ -5,6 +5,7 @@ pub mod rust;
 use crate::core::errors::{ForgeError, Result};
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
+use std::path::Path;
 use std::process::{Command, Output, Stdio};
 use std::time::{Duration, Instant};
 
@@ -19,6 +20,13 @@ impl Phase {
         match self {
             Self::Compile => ("compilation", "FORGE_COMPILE_TIMEOUT_MS", 30_000),
             Self::Run => ("execution", "FORGE_RUN_TIMEOUT_MS", 5_000),
+        }
+    }
+
+    fn output_limit(self) -> u64 {
+        match self {
+            Self::Compile => 8 * 1024 * 1024,
+            Self::Run => 1024 * 1024,
         }
     }
 }
@@ -49,8 +57,14 @@ pub(crate) fn run_command(command: &mut Command, phase: Phase) -> Result<Output>
     let limit = timeout(phase)?;
     let (phase_name, variable, _) = phase.settings();
     let program = command.get_program().to_string_lossy().into_owned();
-    let mut stdout = tempfile::tempfile()?;
-    let mut stderr = tempfile::tempfile()?;
+    let max_output = phase.output_limit();
+    let workdir = command
+        .get_current_dir()
+        .map(Path::to_path_buf)
+        .ok_or_else(|| ForgeError::Generic("A temporary work directory is required".into()))?;
+    isolate_environment(command, phase, &workdir);
+    let mut stdout = tempfile::tempfile_in(&workdir)?;
+    let mut stderr = tempfile::tempfile_in(&workdir)?;
     command
         .stdin(Stdio::null())
         .stdout(Stdio::from(stdout.try_clone()?))
@@ -60,12 +74,51 @@ pub(crate) fn run_command(command: &mut Command, phase: Phase) -> Result<Output>
     #[cfg(unix)]
     {
         use std::os::unix::process::CommandExt;
+        let is_java = command.get_program().to_string_lossy().ends_with("java");
+        // Compilers also write executables and class files; allow a larger per-file
+        // ceiling there while polling their diagnostic streams at the lower limit.
+        let max_file_size = if matches!(phase, Phase::Compile) {
+            64 * 1024 * 1024
+        } else {
+            max_output
+        };
         command.process_group(0);
+        // Bound each output file even between polling iterations. Keep the compiler's
+        // address space unrestricted: rustc and javac legitimately reserve large maps.
+        unsafe {
+            command.pre_exec(move || {
+                let file_limit = libc::rlimit {
+                    rlim_cur: max_file_size as libc::rlim_t,
+                    rlim_max: max_file_size as libc::rlim_t,
+                };
+                if libc::setrlimit(libc::RLIMIT_FSIZE, &file_limit) != 0 {
+                    return Err(std::io::Error::last_os_error());
+                }
+                if matches!(phase, Phase::Run) && !is_java {
+                    let memory_limit = libc::rlimit {
+                        rlim_cur: 512 * 1024 * 1024,
+                        rlim_max: 512 * 1024 * 1024,
+                    };
+                    if libc::setrlimit(libc::RLIMIT_AS, &memory_limit) != 0 {
+                        return Err(std::io::Error::last_os_error());
+                    }
+                }
+                Ok(())
+            });
+        }
     }
 
     let mut child = command.spawn()?;
     let start = Instant::now();
     let status = loop {
+        if output_size(&stdout, &stderr)? >= max_output {
+            stop_child(&mut child);
+            return Err(ForgeError::OutputLimit {
+                phase: phase_name,
+                program,
+                limit_kb: max_output / 1024,
+            });
+        }
         match child.try_wait() {
             Ok(Some(status)) => break status,
             Ok(None) if start.elapsed() >= limit => {
@@ -86,11 +139,65 @@ pub(crate) fn run_command(command: &mut Command, phase: Phase) -> Result<Output>
             }
         }
     };
+    if output_size(&stdout, &stderr)? >= max_output {
+        return Err(ForgeError::OutputLimit {
+            phase: phase_name,
+            program,
+            limit_kb: max_output / 1024,
+        });
+    }
     Ok(Output {
         status,
         stdout: read_output(&mut stdout)?,
         stderr: read_output(&mut stderr)?,
     })
+}
+
+fn output_size(stdout: &File, stderr: &File) -> Result<u64> {
+    Ok(stdout
+        .metadata()?
+        .len()
+        .saturating_add(stderr.metadata()?.len()))
+}
+
+fn isolate_environment(command: &mut Command, phase: Phase, workdir: &Path) {
+    // Keep only tool discovery and runtime variables. Learner code can inspect its
+    // environment, so it must not inherit tokens or credentials from the shell.
+    let preserved: Vec<_> = [
+        "PATH",
+        "JAVA_HOME",
+        "RUSTUP_TOOLCHAIN",
+        "LD_LIBRARY_PATH",
+        "DYLD_LIBRARY_PATH",
+        "SystemRoot",
+        "WINDIR",
+        "PATHEXT",
+    ]
+    .into_iter()
+    .filter_map(|name| std::env::var_os(name).map(|value| (name, value)))
+    .collect();
+    let rustup_home = std::env::var_os("RUSTUP_HOME")
+        .or_else(|| std::env::var_os("HOME").map(|home| Path::new(&home).join(".rustup").into()));
+    let cargo_home = std::env::var_os("CARGO_HOME")
+        .or_else(|| std::env::var_os("HOME").map(|home| Path::new(&home).join(".cargo").into()));
+    command.env_clear();
+    for (name, value) in preserved {
+        command.env(name, value);
+    }
+    if matches!(phase, Phase::Compile) {
+        if let Some(value) = rustup_home {
+            command.env("RUSTUP_HOME", value);
+        }
+        if let Some(value) = cargo_home {
+            command.env("CARGO_HOME", value);
+        }
+    }
+    command
+        .env("HOME", workdir)
+        .env("USERPROFILE", workdir)
+        .env("TMPDIR", workdir)
+        .env("TMP", workdir)
+        .env("TEMP", workdir);
 }
 
 fn read_output(file: &mut File) -> Result<Vec<u8>> {

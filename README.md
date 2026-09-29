@@ -123,6 +123,12 @@ cargo test --locked --test tui_render
 
 For a manual visual check, open `forge tui` in a terminal at least 100 columns by 32 rows and again at a smaller size. Check the language picker, exercise list, editor panels, F1 help, F2 hints, Ctrl+S, Ctrl+R compiler feedback, and Esc. Repeat in the terminals you support (for example GNOME Terminal, macOS Terminal, and Windows Terminal); the in-memory test cannot verify font rendering, color fidelity or key handling in each emulator.
 
+Use the [terminal verification checklist](docs/TUI_VERIFY.md) to record each emulator's result.
+
+Program runs have a 5 second timeout; compilation has 30 seconds. Each output stream is capped at 1 MiB while running or 8 MiB while compiling. On Unix, Forge also caps native program address space at 512 MiB; Java uses a 256 MiB heap and 128 MiB metaspace cap. Programs run in a temporary working directory. These limits prevent common hangs and excessive output, but they do not provide a security sandbox: code can still access your files and network with your account permissions. Run only code you trust. Adjust the timeouts with `FORGE_RUN_TIMEOUT_MS` and `FORGE_COMPILE_TIMEOUT_MS` when a legitimate exercise needs longer.
+
+In the TUI, compilation and validation run in the background. The editor shows an in-progress message and remains responsive; editing is briefly paused until the result arrives. F1 and Ctrl+Q remain available.
+
 The workflow in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) builds and tests on Linux, macOS Apple Silicon and Intel, and Windows. To publish a release, first ensure the version in `Cargo.toml` matches the tag (for example `0.1.0` and `v0.1.0`), verify the CI checks on `main`, and create and push that tag:
 
 ```sh

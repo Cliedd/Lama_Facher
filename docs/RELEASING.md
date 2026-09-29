@@ -1,5 +1,7 @@
 # Forge release
 
+La release `v0.1.0` est publiée : <https://github.com/Cliedd/Lama_Facher/releases/tag/v0.1.0>. Le workflow du tag a terminé avec succès, y compris `build (macos-15-intel, macos-x86_64)` et le job `release`. Les cinq assets attendus (quatre archives et `SHA256SUMS`) sont présents. Vérification reproductible : `gh run view 36535908555 --repo Cliedd/Lama_Facher` et `gh release view v0.1.0 --repo Cliedd/Lama_Facher`.
+
 The package version in `Cargo.toml` is `0.1.0`. After the release commit passes CI on `main`, create and push the matching tag:
 
 ```sh

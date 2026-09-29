@@ -1,5 +1,5 @@
 use forge::core::exercise::Exercise;
-use forge::core::progress::Status;
+use forge::core::progress::{Status, UserProgress};
 use forge::storage::local::LocalStorage;
 use std::fs;
 use std::process::Command;
@@ -160,4 +160,101 @@ fn progress_export_and_reset_preserve_only_requested_records() {
     let empty = forge(&root, &["progress", "export"]);
     assert!(empty.status.success());
     assert!(String::from_utf8_lossy(&empty.stdout).contains("\"exercises\": {}"));
+}
+
+#[test]
+fn progress_import_merges_conservatively_and_is_idempotent() {
+    let root = TempDir::new().unwrap();
+    let storage = LocalStorage::at(root.path().join("progress"));
+    let mut local = UserProgress::default();
+    local.record_failed_attempt("shared", "mon brouillon local");
+    local.mark_completed("already_done", "ma solution");
+    storage.save_progress(&local).unwrap();
+
+    let mut backup = UserProgress::default();
+    backup.mark_completed("shared", "solution importée");
+    backup.mark_completed("shared", "solution importée");
+    backup.record_failed_attempt("new_exercise", "nouveau brouillon");
+    backup.record_failed_attempt("new_exercise", "nouveau brouillon");
+    backup.record_failed_attempt("already_done", "autre code");
+    let backup_path = root.path().join("backup.json");
+    fs::write(&backup_path, serde_json::to_string(&backup).unwrap()).unwrap();
+
+    let args = ["progress", "import", backup_path.to_str().unwrap()];
+    let first = forge(&root, &args);
+    assert!(
+        first.status.success(),
+        "{}",
+        String::from_utf8_lossy(&first.stderr)
+    );
+    assert!(String::from_utf8_lossy(&first.stdout).contains("brouillons locaux"));
+    let merged = storage.load_progress().unwrap();
+    assert_eq!(merged.get_status("shared"), Status::Completed);
+    assert_eq!(
+        merged.exercises["shared"].last_code.as_deref(),
+        Some("mon brouillon local")
+    );
+    assert_eq!(merged.exercises["shared"].attempts, 2);
+    assert_eq!(merged.get_status("already_done"), Status::Completed);
+    assert_eq!(
+        merged.exercises["already_done"].last_code.as_deref(),
+        Some("ma solution")
+    );
+    assert_eq!(merged.exercises["new_exercise"].attempts, 2);
+
+    let second = forge(&root, &args);
+    assert!(second.status.success());
+    assert_eq!(storage.load_progress().unwrap(), merged);
+}
+
+#[test]
+fn progress_import_rejects_invalid_backup_without_changing_local_data() {
+    let root = TempDir::new().unwrap();
+    let storage = LocalStorage::at(root.path().join("progress"));
+    let mut local = UserProgress::default();
+    local.save_draft("safe", "code précieux");
+    storage.save_progress(&local).unwrap();
+    let before = fs::read(storage.progress_path()).unwrap();
+    let source = root.path().join("backup.json");
+
+    for bad in [
+        "not JSON",
+        r#"{"exercises":{"x":{"exercise_id":"other","status":"Completed","attempts":1,"last_code":"ok"}}}"#,
+        r#"{"exercises":{"x":{"exercise_id":"x","status":"Unknown","attempts":1,"last_code":null}}}"#,
+        r#"{"exercises":{"x":{"exercise_id":"x","status":"Completed","attempts":1,"last_code":null,"extra":true}}}"#,
+        r#"{"exercises":{" ":{"exercise_id":" ","status":"NotStarted","attempts":0,"last_code":null}}}"#,
+    ] {
+        fs::write(&source, bad).unwrap();
+        let result = forge(&root, &["progress", "import", source.to_str().unwrap()]);
+        assert!(!result.status.success(), "accepted {bad}");
+        assert_eq!(fs::read(storage.progress_path()).unwrap(), before);
+    }
+    assert_eq!(storage.load_progress().unwrap(), local);
+}
+
+#[test]
+fn progress_import_restores_an_exported_backup() {
+    let root = TempDir::new().unwrap();
+    let storage = LocalStorage::at(root.path().join("progress"));
+    let mut original = UserProgress::default();
+    original.mark_completed("rust_01", "fn main() {}\n");
+    original.save_draft("java_01", "class Main {}\n");
+    storage.save_progress(&original).unwrap();
+
+    let exported = forge(&root, &["progress", "export", "--format", "json"]);
+    assert!(exported.status.success());
+    let backup_path = root.path().join("saved.json");
+    fs::write(&backup_path, exported.stdout).unwrap();
+    storage.reset_progress().unwrap();
+
+    let imported = forge(
+        &root,
+        &["progress", "import", backup_path.to_str().unwrap()],
+    );
+    assert!(
+        imported.status.success(),
+        "{}",
+        String::from_utf8_lossy(&imported.stderr)
+    );
+    assert_eq!(storage.load_progress().unwrap(), original);
 }

@@ -8,7 +8,8 @@ pub enum Status {
     Completed,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ExerciseProgress {
     pub exercise_id: String,
     pub status: Status,
@@ -16,12 +17,73 @@ pub struct ExerciseProgress {
     pub last_code: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[serde(deny_unknown_fields)]
 pub struct UserProgress {
     pub exercises: HashMap<String, ExerciseProgress>,
 }
 
+#[derive(Debug, Default, PartialEq, Eq)]
+pub struct MergeReport {
+    pub added: usize,
+    pub updated: usize,
+    pub unchanged: usize,
+    pub code_conflicts: usize,
+}
+
 impl UserProgress {
+    pub fn validate_import(&self) -> std::result::Result<(), String> {
+        for (id, entry) in &self.exercises {
+            if id.is_empty() || id.trim() != id || id.chars().any(char::is_control) {
+                return Err(format!("invalid exercise ID {id:?}"));
+            }
+            if entry.exercise_id != *id {
+                return Err(format!(
+                    "exercise ID mismatch: key {id:?}, record {:?}",
+                    entry.exercise_id
+                ));
+            }
+        }
+        Ok(())
+    }
+
+    /// Merge without discarding local code or double-counting shared attempts.
+    pub fn merge_from(&mut self, imported: UserProgress) -> MergeReport {
+        let mut report = MergeReport::default();
+        for (id, incoming) in imported.exercises {
+            match self.exercises.get_mut(&id) {
+                None => {
+                    self.exercises.insert(id, incoming);
+                    report.added += 1;
+                }
+                Some(local) => {
+                    let before = local.clone();
+                    if local.last_code.is_some()
+                        && incoming.last_code.is_some()
+                        && local.last_code != incoming.last_code
+                    {
+                        report.code_conflicts += 1;
+                    }
+                    if local.last_code.is_none() {
+                        local.last_code = incoming.last_code;
+                    }
+                    local.attempts = local.attempts.max(incoming.attempts);
+                    local.status = match (&local.status, &incoming.status) {
+                        (Status::Completed, _) | (_, Status::Completed) => Status::Completed,
+                        (Status::InProgress, _) | (_, Status::InProgress) => Status::InProgress,
+                        _ => Status::NotStarted,
+                    };
+                    if *local == before {
+                        report.unchanged += 1;
+                    } else {
+                        report.updated += 1;
+                    }
+                }
+            }
+        }
+        report
+    }
+
     /// Remove a single exercise, including its saved code and attempts.
     pub fn reset_exercise(&mut self, id: &str) -> bool {
         self.exercises.remove(id).is_some()

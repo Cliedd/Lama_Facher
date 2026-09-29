@@ -1,15 +1,16 @@
 id: java_25_parse_list
-title: Parse a list of numbers
+title: Additionner des nombres écrits en texte
 language: java
-difficulty: Intermediate
-chapter: 07 · Safer transformations
-lesson: Integer.parseInt converts numeric strings; a loop can accumulate the results.
-description: Parse all three values and print their sum.
-tip: Do not concatenate the strings.
+difficulty: Intermédiaire
+chapter: 07 · Transformations sûres
+lesson: Integer.parseInt() convertit un texte comme « 4 » en entier 4. Tu peux ensuite additionner
+  ces entiers.
+description: Convertis les trois textes de values et affiche leur somme.
+tip: Ajouter directement des textes les collerait au lieu de calculer.
 template: "public class Main {\n    public static void main(String[] args) {\n        String[]\
   \ values = {\"4\", \"6\", \"8\"};\n        int total = 0;\n        // TODO: Parse and add\
   \ each value.\n        System.out.println(total);\n    }\n}\n"
 expected_output: '18'
 hints:
-- Loop over values.
-- Add Integer.parseInt(value) to total each time.
+- Parcours le tableau values.
+- À chaque tour, ajoute Integer.parseInt(value) à total.

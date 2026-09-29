@@ -1,14 +1,15 @@
 id: rust_16_chars
-title: Count vowels
+title: Compter les voyelles
 language: rust
-difficulty: Intermediate
-chapter: 05 · Working with text and collections
-lesson: chars iterates Unicode scalar values; matches! can test several alternatives.
-description: Count lowercase vowels in banana and print the count.
-tip: The input is lowercase, so uppercase cases are unnecessary.
+difficulty: Intermédiaire
+chapter: 05 · Textes et collections
+lesson: chars() parcourt les caractères d'un mot. matches! peut vérifier si un caractère correspond
+  à plusieurs lettres.
+description: Compte les voyelles minuscules du mot banana et affiche le résultat.
+tip: 'Le mot est en minuscules : il suffit de chercher a, e, i, o et u.'
 template: "fn main() {\n    let word = \"banana\";\n    let mut count = 0;\n    // TODO: Count\
   \ vowels by iterating over chars.\n    println!(\"{count}\");\n}\n"
 expected_output: '3'
 hints:
-- Use for ch in word.chars().
-- Increment when matches!(ch, 'a' | 'e' | 'i' | 'o' | 'u').
+- Utilise for ch in word.chars().
+- Augmente count si matches!(ch, 'a' | 'e' | 'i' | 'o' | 'u').

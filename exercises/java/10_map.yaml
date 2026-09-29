@@ -1,16 +1,17 @@
 id: java_10_map
-title: Count word occurrences
+title: Compter les mots
 language: java
-difficulty: Intermediate
-chapter: 04 · Real-world patterns
-lesson: A HashMap associates keys with values; getOrDefault handles missing keys.
-description: Count each word and print the count for rust.
-tip: Use the word as the key, not a separate counter per word.
+difficulty: Intermédiaire
+chapter: 04 · Cas concrets
+lesson: Une HashMap associe une clé à une valeur. getOrDefault donne 0 si le mot n'a pas encore
+  été vu.
+description: Compte chaque mot du tableau, puis affiche le nombre de fois où rust apparaît.
+tip: Utilise chaque mot comme clé de la map.
 template: "import java.util.HashMap;\npublic class Main {\n    public static void main(String[]\
   \ args) {\n        String[] words = {\"java\", \"rust\", \"rust\", \"java\", \"rust\"};\n\
   \        HashMap<String, Integer> counts = new HashMap<>();\n        // TODO: Count every\
   \ word.\n        System.out.println(counts.getOrDefault(\"rust\", 0));\n    }\n}\n"
 expected_output: '3'
 hints:
-- Loop over words and read getOrDefault(word, 0).
-- Use counts.put(word, counts.getOrDefault(word, 0) + 1).
+- Parcours words et lis counts.getOrDefault(word, 0).
+- Mets à jour avec counts.put(word, counts.getOrDefault(word, 0) + 1).

@@ -1,15 +1,22 @@
 id: rust_09_struct
-title: Give a struct a method
+title: Calculer l'aire d'un rectangle
 language: rust
-difficulty: Intermediate
-chapter: 03 · Reusable code and data
-lesson: A struct groups fields; an impl block adds methods that read them through &self.
-description: Make Rectangle::area return width times height.
-tip: The struct instance and method call are provided.
+difficulty: Intermédiaire
+chapter: 03 · Code et données réutilisables
+lesson: Une struct regroupe des données. Un bloc impl lui ajoute des méthodes qui lisent ses
+  champs avec &self.
+description: Complète Rectangle::area pour renvoyer width multiplié par height.
+tip: Le rectangle et l'appel de area sont déjà prêts. Garde les données fournies pour les autres
+  vérifications.
 template: "struct Rectangle { width: i32, height: i32 }\nimpl Rectangle {\n    fn area(&self)\
   \ -> i32 {\n        // TODO: Compute area.\n        0\n    }\n}\nfn main() {\n    let shape\
   \ = Rectangle { width: 3, height: 4 };\n    println!(\"{}\", shape.area());\n}\n"
 expected_output: '12'
 hints:
-- Use self.width and self.height.
-- Make self.width * self.height the final expression.
+- Lis self.width et self.height.
+- Mets self.width * self.height comme dernière expression.
+test_cases:
+- name: different dimensions
+  replace: 'width: 3, height: 4'
+  with: 'width: 5, height: 6'
+  expected_output: '30'

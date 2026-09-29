@@ -1,16 +1,17 @@
 id: java_18_overload
-title: Overload a method
+title: Donner deux formes à une méthode
 language: java
-difficulty: Intermediate
-chapter: 06 · Designing reusable code
-lesson: Methods can share a name when their parameter lists differ.
-description: Complete the two-argument sum method so the program prints 9.
-tip: The one-argument method already works; keep its behavior.
+difficulty: Intermédiaire
+chapter: 06 · Concevoir du code réutilisable
+lesson: En Java, deux méthodes peuvent avoir le même nom si elles ne reçoivent pas le même nombre
+  de paramètres.
+description: Complète sum(left, right) pour que sum(4, 5) affiche 9.
+tip: La méthode sum avec un seul paramètre fonctionne déjà.
 template: "public class Main {\n    static int sum(int value) { return value; }\n    static\
   \ int sum(int left, int right) {\n        // TODO: Combine both arguments.\n        return\
   \ 0;\n    }\n    public static void main(String[] args) {\n        System.out.println(sum(4,\
   \ 5));\n    }\n}\n"
 expected_output: '9'
 hints:
-- Use both parameters.
-- Return left + right.
+- Utilise les deux paramètres left et right.
+- Renvoie left + right.

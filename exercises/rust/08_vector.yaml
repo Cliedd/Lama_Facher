@@ -1,14 +1,21 @@
 id: rust_08_vector
-title: Find the largest number
+title: Trouver le plus grand nombre
 language: rust
-difficulty: Intermediate
-chapter: 03 · Reusable code and data
-lesson: A Vec stores values of one type; iterating over &numbers borrows the vector.
-description: Find the maximum in [4, 9, 2, 7].
-tip: Start maximum at the first element so negative values work too.
+difficulty: Intermédiaire
+chapter: 03 · Code et données réutilisables
+lesson: Un Vec range plusieurs valeurs du même type. Avec &numbers, la boucle les lit sans prendre
+  possession du vecteur.
+description: Trouve le plus grand nombre de [4, 9, 2, 7], puis affiche-le.
+tip: Commence avec numbers[0] pour gérer aussi les nombres négatifs. Garde les données fournies
+  pour les autres vérifications.
 template: "fn main() {\n    let numbers = vec![4, 9, 2, 7];\n    let mut maximum = numbers[0];\n\
   \    // TODO: Visit each number and update maximum.\n    println!(\"{maximum}\");\n}\n"
 expected_output: '9'
 hints:
-- Use for &number in &numbers { ... }.
-- If number > maximum, assign number to maximum.
+- Utilise for &number in &numbers { ... }.
+- Si number > maximum, mets number dans maximum.
+test_cases:
+- name: all negative
+  replace: vec![4, 9, 2, 7]
+  with: vec![-8, -2, -11]
+  expected_output: '-2'

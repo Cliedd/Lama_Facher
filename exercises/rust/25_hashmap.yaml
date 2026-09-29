@@ -1,15 +1,21 @@
 id: rust_25_hashmap
-title: Count fruit names
+title: Compter les fruits
 language: rust
-difficulty: Intermediate
-chapter: 08 · Small programs
-lesson: HashMap entry gives access to a key's value and inserts a default when missing.
-description: Count the fruit names and print the count for apple.
-tip: The entry API avoids a separate lookup before insertion.
+difficulty: Intermédiaire
+chapter: 08 · Petits programmes
+lesson: Dans une HashMap, entry() trouve une clé et or_insert(0) crée un compteur à zéro si
+  elle manque.
+description: Compte les fruits du tableau et affiche combien de fois apple apparaît.
+tip: Ajoute 1 à chaque compteur. Garde les données fournies pour les autres vérifications.
 template: "use std::collections::HashMap;\nfn main() {\n    let fruits = [\"apple\", \"pear\"\
   , \"apple\", \"apple\"];\n    let mut counts: HashMap<&str, i32> = HashMap::new();\n    //\
   \ TODO: Count every fruit.\n    println!(\"{}\", counts.get(\"apple\").unwrap_or(&0));\n}\n"
 expected_output: '3'
 hints:
-- Loop over fruits and call counts.entry(fruit).
-- Increment *counts.entry(fruit).or_insert(0) for each fruit.
+- Parcours fruits et appelle counts.entry(fruit).
+- À chaque fruit, augmente *counts.entry(fruit).or_insert(0).
+test_cases:
+- name: missing apple
+  replace: '["apple", "pear", "apple", "apple"]'
+  with: '["pear", "plum"]'
+  expected_output: '0'

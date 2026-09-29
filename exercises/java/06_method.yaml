@@ -1,15 +1,28 @@
 id: java_06_method
-title: Write a reusable method
+title: Écrire une méthode réutilisable
 language: java
-difficulty: Beginner
-chapter: 02 · Decisions and repetition
-lesson: A static method can be called from main. return sends a result back.
-description: Complete doubleValue so that doubleValue(7) prints 14.
-tip: Keep the signature; replace only the placeholder return value.
+difficulty: Débutant
+chapter: 02 · Décisions et répétitions
+lesson: Une méthode static peut être appelée depuis main. return renvoie un résultat.
+description: Complète doubleValue pour que doubleValue(7) affiche 14.
+tip: Garde la signature et remplace seulement la valeur temporaire.
 template: "public class Main {\n    static int doubleValue(int value) {\n        // TODO: Return\
   \ twice value.\n        return 0;\n    }\n    public static void main(String[] args) {\n \
   \       System.out.println(doubleValue(7));\n    }\n}\n"
 expected_output: '14'
 hints:
-- Use the value parameter.
-- Return value * 2.
+- Utilise le paramètre value.
+- Renvoie value * 2.
+test_cases:
+- name: zero argument
+  replace: doubleValue(7)
+  with: doubleValue(0)
+  expected_output: '0'
+- name: negative argument
+  replace: doubleValue(7)
+  with: doubleValue(-3)
+  expected_output: '-6'
+- name: larger argument
+  replace: doubleValue(7)
+  with: doubleValue(11)
+  expected_output: '22'

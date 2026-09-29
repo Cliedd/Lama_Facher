@@ -1,14 +1,15 @@
 id: rust_13_string_slice
-title: Borrow a word slice
+title: Emprunter un morceau de texte
 language: rust
-difficulty: Intermediate
-chapter: 05 · Working with text and collections
-lesson: A string slice &str borrows part of a string without copying it.
-description: Print Forge by slicing the message.
-tip: ASCII text uses byte positions that match character positions here.
+difficulty: Intermédiaire
+chapter: 05 · Textes et collections
+lesson: Une tranche de texte &str peut désigner une partie d'un String sans la copier.
+description: Dans message, récupère seulement « Forge » et affiche ce mot.
+tip: 'Ce texte utilise des caractères simples : ses positions en octets correspondent ici aux
+  lettres.'
 template: "fn main() {\n    let message = String::from(\"Hello, Forge!\");\n    // TODO: Borrow\
   \ just the word Forge.\n    println!(\"{message}\");\n}\n"
 expected_output: Forge
 hints:
-- Start at the F after the comma and space.
-- Print &message[7..12].
+- Le F se trouve après la virgule et l'espace.
+- Affiche &message[7..12].

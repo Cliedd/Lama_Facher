@@ -25,6 +25,15 @@ pub enum ForgeError {
         variable: &'static str,
     },
 
+    #[error(
+        "{phase} of {program} produced more than {limit_kb} KiB of output; reduce printed output"
+    )]
+    OutputLimit {
+        phase: &'static str,
+        program: String,
+        limit_kb: u64,
+    },
+
     #[error("Exercise not found: {0}")]
     ExerciseNotFound(String),
 

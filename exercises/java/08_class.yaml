@@ -1,11 +1,12 @@
 id: java_08_class
-title: Give an object a method
+title: Calculer l'aire d'un rectangle
 language: java
-difficulty: Intermediate
-chapter: 03 · Reusable code and data
-lesson: A class stores fields; an instance method can read those fields.
-description: Make Rectangle.area() return width times height.
-tip: The object construction and method call are already present.
+difficulty: Intermédiaire
+chapter: 03 · Code et données réutilisables
+lesson: Une classe regroupe des données et des méthodes. Une méthode peut lire les données de
+  son objet.
+description: Complète area() pour renvoyer la largeur multipliée par la hauteur.
+tip: Le rectangle et l'appel de la méthode sont déjà prêts.
 template: "public class Main {\n    public static void main(String[] args) {\n        Rectangle\
   \ shape = new Rectangle(3, 4);\n        System.out.println(shape.area());\n    }\n}\nclass\
   \ Rectangle {\n    private final int width, height;\n    Rectangle(int width, int height)\
@@ -13,5 +14,5 @@ template: "public class Main {\n    public static void main(String[] args) {\n  
   \ area.\n        return 0;\n    }\n}\n"
 expected_output: '12'
 hints:
-- Both fields are available in area().
-- Return width * height.
+- Les champs width et height sont disponibles dans area().
+- Renvoie width * height.

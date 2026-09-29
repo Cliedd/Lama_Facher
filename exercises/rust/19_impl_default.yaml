@@ -1,15 +1,15 @@
 id: rust_19_impl_default
-title: Create a default setting
+title: Créer un réglage par défaut
 language: rust
-difficulty: Intermediate
-chapter: 06 · Designing reusable code
-lesson: Default provides a sensible initial value for a type.
-description: Make Settings::default() provide level 1.
-tip: Return a Settings value from the trait method.
+difficulty: Intermédiaire
+chapter: 06 · Concevoir du code réutilisable
+lesson: Le trait Default permet de créer une valeur de départ raisonnable pour un type.
+description: Complète Settings::default() pour que level vaille 1.
+tip: La méthode doit renvoyer un Settings.
 template: "struct Settings { level: u8 }\nimpl Default for Settings {\n    fn default() -> Self\
   \ {\n        // TODO: Choose the initial level.\n        Self { level: 0 }\n    }\n}\nfn main()\
   \ {\n    println!(\"{}\", Settings::default().level);\n}\n"
 expected_output: '1'
 hints:
-- Construct Self with the level field.
-- 'Set level: 1 in default().'
+- Construis Self en remplissant son champ level.
+- 'Dans default(), mets level: 1.'

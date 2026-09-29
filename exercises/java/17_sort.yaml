@@ -1,15 +1,15 @@
 id: java_17_sort
-title: Order the scores
+title: Ranger des scores dans l'ordre
 language: java
-difficulty: Intermediate
-chapter: 05 · Working with text and collections
-lesson: Arrays.sort sorts an array in ascending order, changing the original array.
-description: Sort the scores and print the middle value.
-tip: The middle index of a three-element array is 1.
+difficulty: Intermédiaire
+chapter: 05 · Textes et collections
+lesson: Arrays.sort() trie le tableau du plus petit au plus grand et modifie ce tableau.
+description: Trie scores, puis affiche la valeur du milieu.
+tip: Dans un tableau de trois éléments, l'indice du milieu est 1.
 template: "import java.util.Arrays;\npublic class Main {\n    public static void main(String[]\
   \ args) {\n        int[] scores = {9, 2, 5};\n        // TODO: Sort scores.\n        System.out.println(scores[1]);\n\
   \    }\n}\n"
 expected_output: '5'
 hints:
-- Arrays has a sort method.
-- Call Arrays.sort(scores) before printing.
+- La classe Arrays fournit la méthode sort().
+- Appelle Arrays.sort(scores) avant l'affichage.

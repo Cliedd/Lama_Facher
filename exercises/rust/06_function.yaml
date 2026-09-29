@@ -1,14 +1,28 @@
 id: rust_06_function
-title: Write a reusable function
+title: Écrire une fonction réutilisable
 language: rust
-difficulty: Beginner
-chapter: 02 · Decisions and repetition
-lesson: A function declares parameter and return types; its final expression can be the result.
-description: Complete double_value so that double_value(7) prints 14.
-tip: A final expression has no semicolon.
+difficulty: Débutant
+chapter: 02 · Décisions et répétitions
+lesson: Une fonction déclare ses types de paramètres et de retour. Sa dernière expression peut
+  être le résultat.
+description: Complète double_value pour que double_value(7) affiche 14.
+tip: La dernière expression n'a pas de point-virgule.
 template: "fn double_value(value: i32) -> i32 {\n    // TODO: Return twice value.\n    0\n}\n\
   fn main() {\n    println!(\"{}\", double_value(7));\n}\n"
 expected_output: '14'
 hints:
-- Use the value parameter.
-- Make value * 2 the final expression.
+- Utilise le paramètre value.
+- Fais de value * 2 la dernière expression.
+test_cases:
+- name: zero argument
+  replace: double_value(7)
+  with: double_value(0)
+  expected_output: '0'
+- name: negative argument
+  replace: double_value(7)
+  with: double_value(-3)
+  expected_output: '-6'
+- name: larger argument
+  replace: double_value(7)
+  with: double_value(11)
+  expected_output: '22'

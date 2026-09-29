@@ -65,6 +65,11 @@ pub enum ProgressCommands {
         #[arg(long, value_enum, default_value_t = ExportFormat::Json)]
         format: ExportFormat,
     },
+    /// Import a JSON backup, keeping local code when drafts differ
+    Import {
+        /// Path to a JSON file created by `forge progress export`
+        file: std::path::PathBuf,
+    },
     /// Erase one exercise's progress, or all progress with --yes
     Reset {
         /// Reset only this exercise ID

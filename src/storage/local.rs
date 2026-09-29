@@ -1,7 +1,7 @@
 use crate::core::errors::{ForgeError, Result};
-use crate::core::progress::UserProgress;
+use crate::core::progress::{MergeReport, UserProgress};
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 pub struct LocalStorage {
     base_dir: PathBuf,
@@ -51,6 +51,21 @@ impl LocalStorage {
         tmp.flush()?;
         tmp.persist(path).map_err(|e| ForgeError::Io(e.error))?;
         Ok(())
+    }
+
+    pub fn import_progress(&self, source: &Path) -> Result<MergeReport> {
+        let content = std::fs::read_to_string(source)?;
+        let imported: UserProgress = serde_json::from_str(&content)
+            .map_err(|e| ForgeError::Serialization(format!("invalid backup JSON: {e}")))?;
+        imported
+            .validate_import()
+            .map_err(ForgeError::Serialization)?;
+        let mut local = self.load_progress()?;
+        let report = local.merge_from(imported);
+        if report.added > 0 || report.updated > 0 {
+            self.save_progress(&local)?;
+        }
+        Ok(report)
     }
 
     pub fn reset_progress(&self) -> Result<()> {
