@@ -1,0 +1,15 @@
+id: rust_24_collect
+title: Collect uppercase names
+language: rust
+difficulty: Intermediate
+chapter: 07 · Safer transformations
+lesson: collect builds a collection from an iterator; map transforms each element first.
+description: Convert all names to uppercase and print the second one.
+tip: Specify Vec<String> as the output collection type.
+template: "fn main() {\n    let names = [\"ada\", \"lin\"];\n    // TODO: Collect uppercase\
+  \ names into a Vec<String> named upper.\n    println!(\"{}\", names[1]);\n}\n"
+expected_output: LIN
+hints:
+- Map each name with to_uppercase().
+- 'Use let upper: Vec<String> = names.iter().map(|name| name.to_uppercase()).collect(); and
+  print upper[1].'

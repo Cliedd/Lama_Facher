@@ -1,0 +1,15 @@
+id: java_14_trim
+title: Clean user input
+language: java
+difficulty: Intermediate
+chapter: 05 · Working with text and collections
+lesson: trim removes leading and trailing whitespace; toLowerCase normalizes capitalization.
+description: Print the cleaned, lowercase value of input.
+tip: Chain the two String methods instead of replacing the input manually.
+template: "public class Main {\n    public static void main(String[] args) {\n        String\
+  \ input = \"  RuSt  \";\n        // TODO: Trim whitespace and lowercase the text.\n      \
+  \  System.out.println(input);\n    }\n}\n"
+expected_output: rust
+hints:
+- Call trim() first.
+- Print input.trim().toLowerCase().

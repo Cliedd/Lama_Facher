@@ -22,6 +22,37 @@ pub struct UserProgress {
 }
 
 impl UserProgress {
+    /// Remove a single exercise, including its saved code and attempts.
+    pub fn reset_exercise(&mut self, id: &str) -> bool {
+        self.exercises.remove(id).is_some()
+    }
+
+    /// RFC 4180 CSV with stable ordering for diffs and spreadsheet import.
+    pub fn to_csv(&self) -> String {
+        fn field(value: &str) -> String {
+            format!("\"{}\"", value.replace('"', "\"\""))
+        }
+
+        let mut rows = String::from("exercise_id,status,attempts,last_code\r\n");
+        let mut entries: Vec<_> = self.exercises.iter().collect();
+        entries.sort_by_key(|(id, _)| *id);
+        for (id, item) in entries {
+            let status = match item.status {
+                Status::NotStarted => "NotStarted",
+                Status::InProgress => "InProgress",
+                Status::Completed => "Completed",
+            };
+            rows.push_str(&format!(
+                "{},{},{},{}\r\n",
+                field(id),
+                field(status),
+                item.attempts,
+                field(item.last_code.as_deref().unwrap_or(""))
+            ));
+        }
+        rows
+    }
+
     pub fn get_status(&self, id: &str) -> Status {
         self.exercises
             .get(id)

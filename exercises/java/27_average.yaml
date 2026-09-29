@@ -1,0 +1,15 @@
+id: java_27_average
+title: Compute an integer average
+language: java
+difficulty: Intermediate
+chapter: 08 · Small programs
+lesson: An integer average divides a sum by the count; integer division drops any fraction.
+description: Calculate and print the average of the scores.
+tip: Derive the divisor from scores.length.
+template: "public class Main {\n    public static void main(String[] args) {\n        int[]\
+  \ scores = {10, 20, 30};\n        int total = 0;\n        // TODO: Add all scores and divide\
+  \ by their count.\n        System.out.println(total);\n    }\n}\n"
+expected_output: '20'
+hints:
+- Loop through scores to build total.
+- Print total / scores.length.

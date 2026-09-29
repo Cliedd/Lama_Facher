@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Install Forge from a GitHub release, or build from source when no binary exists.
+# Install a verified Forge release without requiring a Rust toolchain.
 set -euo pipefail
 
 REPO="${FORGE_REPO:-Cliedd/Lama_Facher}"
@@ -22,7 +22,8 @@ require install
 case "$(uname -s)-$(uname -m)" in
   Linux-x86_64) TARGET=linux-x86_64 ;;
   Darwin-arm64) TARGET=macos-aarch64 ;;
-  *) TARGET=source ;;
+  Darwin-x86_64) TARGET=macos-x86_64 ;;
+  *) die "No prebuilt release for $(uname -s)-$(uname -m). See https://github.com/$REPO#development for a source build." ;;
 esac
 
 TMP_DIR="$(mktemp -d)"
@@ -32,33 +33,36 @@ mkdir -p "$PACKAGE"
 if [ -n "${FORGE_ARCHIVE:-}" ]; then
   cp -- "$FORGE_ARCHIVE" "$TMP_DIR/forge.tar.gz"
   tar -xzf "$TMP_DIR/forge.tar.gz" -C "$PACKAGE"
-elif [ "$TARGET" != source ]; then
+else
+  ARCHIVE_NAME="forge-$TARGET.tar.gz"
   if [ "$VERSION" = latest ]; then
-    URL="https://github.com/$REPO/releases/latest/download/forge-$TARGET.tar.gz"
+    BASE_URL="https://github.com/$REPO/releases/latest/download"
   else
-    URL="https://github.com/$REPO/releases/download/$VERSION/forge-$TARGET.tar.gz"
+    BASE_URL="https://github.com/$REPO/releases/download/$VERSION"
   fi
   say "Downloading Forge ($TARGET, $VERSION)..."
-  if curl --proto '=https' --tlsv1.2 -fsSL --retry 3 --connect-timeout 15 "$URL" -o "$TMP_DIR/forge.tar.gz"; then
-    tar -xzf "$TMP_DIR/forge.tar.gz" -C "$PACKAGE" || die "Release archive is damaged."
-  else
-    say "No release archive available; building from source."
+  if ! curl --proto '=https' --tlsv1.2 -fsSL --retry 3 --connect-timeout 15 "$BASE_URL/$ARCHIVE_NAME" -o "$TMP_DIR/forge.tar.gz"; then
+    die "Release archive unavailable. Check https://github.com/$REPO/releases or set FORGE_VERSION to a published tag."
   fi
-fi
-
-if [ ! -f "$PACKAGE/forge" ] || [ ! -d "$PACKAGE/exercises" ]; then
-  require git
-  require cargo
-  if [ -f Cargo.toml ] && [ -d exercises ]; then
-    SOURCE_DIR="$PWD"
-  else
-    SOURCE_DIR="$TMP_DIR/source"
-    git clone --depth 1 "https://github.com/$REPO.git" "$SOURCE_DIR"
+  if ! curl --proto '=https' --tlsv1.2 -fsSL --retry 3 --connect-timeout 15 "$BASE_URL/SHA256SUMS" -o "$TMP_DIR/SHA256SUMS"; then
+    die "Release checksums unavailable; installation stopped."
   fi
-  say "Building Forge from source..."
-  (cd "$SOURCE_DIR" && cargo build --release --locked)
-  install -m 755 "$SOURCE_DIR/target/release/forge" "$PACKAGE/forge"
-  cp -R "$SOURCE_DIR/exercises" "$PACKAGE/exercises"
+  EXPECTED="$(awk -v filename="$ARCHIVE_NAME" '$2 == filename {print $1}' "$TMP_DIR/SHA256SUMS")"
+  if [ "${#EXPECTED}" -ne 64 ]; then
+    die "Missing or invalid checksum for $ARCHIVE_NAME."
+  fi
+  case "$EXPECTED" in
+    *[!0-9a-fA-F]*) die "Invalid checksum for $ARCHIVE_NAME." ;;
+  esac
+  if command -v sha256sum >/dev/null 2>&1; then
+    ACTUAL="$(sha256sum "$TMP_DIR/forge.tar.gz" | awk '{print $1}')"
+  elif command -v shasum >/dev/null 2>&1; then
+    ACTUAL="$(shasum -a 256 "$TMP_DIR/forge.tar.gz" | awk '{print $1}')"
+  else
+    die "SHA-256 utility missing (sha256sum or shasum)."
+  fi
+  [ "$ACTUAL" = "$EXPECTED" ] || die "Archive checksum mismatch; installation stopped."
+  tar -xzf "$TMP_DIR/forge.tar.gz" -C "$PACKAGE" || die "Release archive is damaged."
 fi
 
 [ -s "$PACKAGE/forge" ] || die "Package has no executable."

@@ -1,6 +1,6 @@
 use anyhow::{bail, Context, Result};
 use clap::Parser;
-use forge::cli::{Cli, Commands};
+use forge::cli::{Cli, Commands, ExportFormat, ProgressCommands};
 use forge::core::exercise::Exercise;
 use forge::core::progress::Status;
 use forge::installer::rustup::RustupInstaller;
@@ -103,7 +103,11 @@ fn execute(cli: Cli) -> Result<()> {
             }
             println!("\nTry it: forge run {} --file <your-source-file>", ex.id);
         }
-        Some(Commands::Progress) => show_progress()?,
+        Some(Commands::Progress { command }) => match command {
+            None => show_progress()?,
+            Some(ProgressCommands::Export { format }) => export_progress(format)?,
+            Some(ProgressCommands::Reset { exercise, yes }) => reset_progress(exercise, yes)?,
+        },
         Some(Commands::Lesson { language: chosen }) => {
             let chosen = language(&chosen)?;
             let exercises = catalog()?;
@@ -191,6 +195,34 @@ fn show_progress() -> Result<()> {
         {
             println!("  Next: {} — {}", next.id, next.title);
         }
+    }
+    Ok(())
+}
+
+fn export_progress(format: ExportFormat) -> Result<()> {
+    let progress = LocalStorage::new()?.load_progress()?;
+    match format {
+        ExportFormat::Json => println!("{}", serde_json::to_string_pretty(&progress)?),
+        ExportFormat::Csv => print!("{}", progress.to_csv()),
+    }
+    Ok(())
+}
+
+fn reset_progress(exercise: Option<String>, yes: bool) -> Result<()> {
+    let storage = LocalStorage::new()?;
+    if let Some(id) = exercise {
+        let mut progress = storage.load_progress()?;
+        if !progress.reset_exercise(&id) {
+            bail!("No saved progress for '{id}'");
+        }
+        storage.save_progress(&progress)?;
+        println!("Reset progress for {id}");
+    } else {
+        if !yes {
+            bail!("Reset erases all progress and saved code. Run `forge progress reset --yes` to confirm");
+        }
+        storage.reset_progress()?;
+        println!("All progress and saved code reset");
     }
     Ok(())
 }

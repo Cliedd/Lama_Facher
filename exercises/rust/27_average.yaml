@@ -1,0 +1,14 @@
+id: rust_27_average
+title: Compute an integer average
+language: rust
+difficulty: Intermediate
+chapter: 08 · Small programs
+lesson: The average of integer values can be computed by summing and dividing by their count.
+description: Calculate the average of the scores and print it.
+tip: Convert len() from usize to i32 for the division.
+template: "fn main() {\n    let scores = [10, 20, 30];\n    // TODO: Sum scores and divide by\
+  \ their count.\n    println!(\"0\");\n}\n"
+expected_output: '20'
+hints:
+- Use scores.iter().sum::<i32>().
+- Divide the sum by scores.len() as i32.

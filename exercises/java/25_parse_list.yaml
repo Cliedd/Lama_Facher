@@ -1,0 +1,15 @@
+id: java_25_parse_list
+title: Parse a list of numbers
+language: java
+difficulty: Intermediate
+chapter: 07 · Safer transformations
+lesson: Integer.parseInt converts numeric strings; a loop can accumulate the results.
+description: Parse all three values and print their sum.
+tip: Do not concatenate the strings.
+template: "public class Main {\n    public static void main(String[] args) {\n        String[]\
+  \ values = {\"4\", \"6\", \"8\"};\n        int total = 0;\n        // TODO: Parse and add\
+  \ each value.\n        System.out.println(total);\n    }\n}\n"
+expected_output: '18'
+hints:
+- Loop over values.
+- Add Integer.parseInt(value) to total each time.

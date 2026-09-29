@@ -1,4 +1,5 @@
 use crate::compiler::diagnostics::{Diagnostic, Severity};
+use crate::compiler::{run_command, Phase};
 use crate::core::errors::{ForgeError, Result};
 use crate::lang::traits::{CompileOutput, RunOutput};
 use regex::Regex;
@@ -16,11 +17,10 @@ impl JavaCompiler {
         let file_path = workdir.join("Main.java");
         std::fs::write(&file_path, code)?;
 
-        let output = Command::new("javac")
-            .arg("-d")
-            .arg(workdir)
-            .arg(&file_path)
-            .output();
+        let output = run_command(
+            Command::new("javac").arg("-d").arg(workdir).arg(&file_path),
+            Phase::Compile,
+        );
 
         match output {
             Ok(out) => {
@@ -39,18 +39,18 @@ impl JavaCompiler {
                     },
                 })
             }
-            Err(e) => Err(ForgeError::Toolchain(format!(
-                "Failed to execute javac: {e}. Is JDK installed?"
-            ))),
+            Err(ForgeError::Io(e)) if e.kind() == std::io::ErrorKind::NotFound => Err(
+                ForgeError::Toolchain("Failed to execute javac. Is JDK installed?".into()),
+            ),
+            Err(e) => Err(e),
         }
     }
 
     pub fn run(&self, workdir: &Path) -> Result<RunOutput> {
-        let output = Command::new("java")
-            .arg("-cp")
-            .arg(workdir)
-            .arg("Main")
-            .output();
+        let output = run_command(
+            Command::new("java").arg("-cp").arg(workdir).arg("Main"),
+            Phase::Run,
+        );
 
         match output {
             Ok(out) => Ok(RunOutput {
@@ -59,9 +59,10 @@ impl JavaCompiler {
                 stderr: String::from_utf8_lossy(&out.stderr).to_string(),
                 exit_code: out.status.code(),
             }),
-            Err(e) => Err(ForgeError::Toolchain(format!(
-                "Failed to execute java: {e}"
-            ))),
+            Err(ForgeError::Io(e)) if e.kind() == std::io::ErrorKind::NotFound => Err(
+                ForgeError::Toolchain("Failed to execute java. Is JDK installed?".into()),
+            ),
+            Err(e) => Err(e),
         }
     }
 

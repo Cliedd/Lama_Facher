@@ -23,6 +23,8 @@ jobs:
             artifact: linux-x86_64
           - os: macos-15
             artifact: macos-aarch64
+          - os: macos-15-intel
+            artifact: macos-x86_64
           - os: windows-2022
             artifact: windows-x86_64
     runs-on: ${{ matrix.os }}
@@ -34,7 +36,9 @@ jobs:
           distribution: temurin
           java-version: '21'
       - name: Check and test
+        shell: bash
         run: |
+          set -euo pipefail
           cargo check --locked --all-targets
           cargo test --locked
       - name: Build release binary
@@ -69,20 +73,43 @@ jobs:
           if-no-files-found: error
 
   release:
-    if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/v')
     needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
+      - name: Verify release version
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(python3 -c 'import tomllib; print(tomllib.load(open("Cargo.toml", "rb"))["package"]["version"])')"
+          test "${GITHUB_REF_NAME}" = "v${version}"
       - uses: actions/download-artifact@v4
         with:
           pattern: forge-*
           merge-multiple: true
+      - name: Verify archives and create checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          archives=(
+            forge-linux-x86_64.tar.gz
+            forge-macos-x86_64.tar.gz
+            forge-macos-aarch64.tar.gz
+            forge-windows-x86_64.zip
+          )
+          for archive in "${archives[@]}"; do test -s "$archive"; done
+          sha256sum "${archives[@]}" > SHA256SUMS
+          sha256sum -c SHA256SUMS
       - uses: softprops/action-gh-release@v2
         with:
           files: |
             forge-linux-x86_64.tar.gz
+            forge-macos-x86_64.tar.gz
             forge-macos-aarch64.tar.gz
             forge-windows-x86_64.zip
+            SHA256SUMS
           generate_release_notes: true
+          fail_on_unmatched_files: true

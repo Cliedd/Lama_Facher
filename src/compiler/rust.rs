@@ -1,4 +1,5 @@
 use crate::compiler::diagnostics::{Diagnostic, Severity};
+use crate::compiler::{run_command, Phase};
 use crate::core::errors::{ForgeError, Result};
 use crate::lang::traits::{CompileOutput, RunOutput};
 use serde_json::Value;
@@ -18,12 +19,14 @@ impl RustCompiler {
 
         let exe_path = workdir.join("main_bin");
 
-        let output = Command::new("rustc")
-            .arg("--error-format=json")
-            .arg("-o")
-            .arg(&exe_path)
-            .arg(&file_path)
-            .output();
+        let output = run_command(
+            Command::new("rustc")
+                .arg("--error-format=json")
+                .arg("-o")
+                .arg(&exe_path)
+                .arg(&file_path),
+            Phase::Compile,
+        );
 
         match output {
             Ok(out) => {
@@ -38,15 +41,16 @@ impl RustCompiler {
                     executable: if success { Some(exe_path) } else { None },
                 })
             }
-            Err(e) => Err(ForgeError::Toolchain(format!(
-                "Failed to execute rustc: {e}. Is Rust installed?"
-            ))),
+            Err(ForgeError::Io(e)) if e.kind() == std::io::ErrorKind::NotFound => Err(
+                ForgeError::Toolchain("Failed to execute rustc. Is Rust installed?".into()),
+            ),
+            Err(e) => Err(e),
         }
     }
 
     pub fn run(&self, workdir: &Path) -> Result<RunOutput> {
         let exe_path = workdir.join("main_bin");
-        let output = Command::new(&exe_path).output();
+        let output = run_command(&mut Command::new(&exe_path), Phase::Run);
 
         match output {
             Ok(out) => Ok(RunOutput {
@@ -55,7 +59,7 @@ impl RustCompiler {
                 stderr: String::from_utf8_lossy(&out.stderr).to_string(),
                 exit_code: out.status.code(),
             }),
-            Err(e) => Err(ForgeError::Toolchain(format!("Failed to run binary: {e}"))),
+            Err(e) => Err(e),
         }
     }
 

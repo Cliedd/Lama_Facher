@@ -17,6 +17,14 @@ pub enum ForgeError {
     #[error("Compile error: {0}")]
     Compile(String),
 
+    #[error("{phase} of {program} exceeded the {timeout_ms} ms limit. Set {variable} to a larger value if needed")]
+    Timeout {
+        phase: &'static str,
+        program: String,
+        timeout_ms: u64,
+        variable: &'static str,
+    },
+
     #[error("Exercise not found: {0}")]
     ExerciseNotFound(String),
 

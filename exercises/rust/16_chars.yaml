@@ -1,0 +1,14 @@
+id: rust_16_chars
+title: Count vowels
+language: rust
+difficulty: Intermediate
+chapter: 05 · Working with text and collections
+lesson: chars iterates Unicode scalar values; matches! can test several alternatives.
+description: Count lowercase vowels in banana and print the count.
+tip: The input is lowercase, so uppercase cases are unnecessary.
+template: "fn main() {\n    let word = \"banana\";\n    let mut count = 0;\n    // TODO: Count\
+  \ vowels by iterating over chars.\n    println!(\"{count}\");\n}\n"
+expected_output: '3'
+hints:
+- Use for ch in word.chars().
+- Increment when matches!(ch, 'a' | 'e' | 'i' | 'o' | 'u').

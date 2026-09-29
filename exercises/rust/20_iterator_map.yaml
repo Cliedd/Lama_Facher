@@ -1,0 +1,14 @@
+id: rust_20_iterator_map
+title: Double a sequence
+language: rust
+difficulty: Intermediate
+chapter: 06 · Designing reusable code
+lesson: Iterator map transforms every item; sum combines the transformed values.
+description: Double every number and print their total.
+tip: Call sum after map to produce one integer.
+template: "fn main() {\n    let numbers = [1, 2, 3];\n    // TODO: Map each item to twice its\
+  \ value, then sum.\n    println!(\"0\");\n}\n"
+expected_output: '12'
+hints:
+- Start with numbers.iter().
+- Use map(|n| n * 2).sum::<i32>().

@@ -1,0 +1,14 @@
+id: rust_17_generic
+title: Write a generic first item
+language: rust
+difficulty: Intermediate
+chapter: 06 · Designing reusable code
+lesson: A generic function can work with different element types using a type parameter.
+description: Complete first so the first number prints as 7.
+tip: Borrow the slice and return a borrowed element.
+template: "fn first<T>(items: &[T]) -> &T {\n    // TODO: Return the first element.\n    &items[1]\n\
+  }\nfn main() {\n    let numbers = [7, 8];\n    println!(\"{}\", first(&numbers));\n}\n"
+expected_output: '7'
+hints:
+- Index zero is the first element.
+- Return &items[0].

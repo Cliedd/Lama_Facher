@@ -1,0 +1,15 @@
+id: rust_22_result_question
+title: Propagate a parse error
+language: rust
+difficulty: Intermediate
+chapter: 07 · Safer transformations
+lesson: The ? operator returns an Err early from a function that returns Result.
+description: Complete parse_number so valid input prints 42.
+tip: The function's error type already matches parse().
+template: "fn parse_number(text: &str) -> Result<i32, std::num::ParseIntError> {\n    // TODO:\
+  \ Parse text and propagate any error.\n    Ok(0)\n}\nfn main() {\n    println!(\"{}\", parse_number(\"\
+  42\").unwrap());\n}\n"
+expected_output: '42'
+hints:
+- Call text.parse::<i32>()? inside the function.
+- Store the result in value and return Ok(value).

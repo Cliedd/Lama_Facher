@@ -1,4 +1,4 @@
-use clap::{Parser, Subcommand};
+use clap::{Parser, Subcommand, ValueEnum};
 
 #[derive(Parser)]
 #[command(name = "forge")]
@@ -28,7 +28,10 @@ pub enum Commands {
         id: String,
     },
     /// Show learning progress and the next recommended exercises
-    Progress,
+    Progress {
+        #[command(subcommand)]
+        command: Option<ProgressCommands>,
+    },
     /// Show the lesson for a language and topic
     Lesson {
         /// Language to learn: 'java' or 'rust'
@@ -53,4 +56,28 @@ pub enum Commands {
         /// Toolchain to install: 'rust' or 'java'
         toolchain: Option<String>,
     },
+}
+
+#[derive(Subcommand)]
+pub enum ProgressCommands {
+    /// Export saved statuses, attempts, and code to standard output
+    Export {
+        #[arg(long, value_enum, default_value_t = ExportFormat::Json)]
+        format: ExportFormat,
+    },
+    /// Erase one exercise's progress, or all progress with --yes
+    Reset {
+        /// Reset only this exercise ID
+        #[arg(long)]
+        exercise: Option<String>,
+        /// Confirm erasing all progress and saved code
+        #[arg(long)]
+        yes: bool,
+    },
+}
+
+#[derive(Clone, Copy, ValueEnum)]
+pub enum ExportFormat {
+    Json,
+    Csv,
 }

@@ -1,0 +1,15 @@
+id: java_22_optional
+title: Supply a missing name
+language: java
+difficulty: Intermediate
+chapter: 07 · Safer transformations
+lesson: Optional represents a value that may be absent; orElse provides a fallback.
+description: Print Guest when the name is empty.
+tip: Avoid calling get() on an empty Optional.
+template: "import java.util.Optional;\npublic class Main {\n    public static void main(String[]\
+  \ args) {\n        Optional<String> name = Optional.empty();\n        // TODO: Print the fallback\
+  \ name.\n        System.out.println(\"Replace me\");\n    }\n}\n"
+expected_output: Guest
+hints:
+- Call orElse on name.
+- Print name.orElse("Guest").

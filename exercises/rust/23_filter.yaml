@@ -1,0 +1,14 @@
+id: rust_23_filter
+title: Keep even values
+language: rust
+difficulty: Intermediate
+chapter: 07 · Safer transformations
+lesson: filter retains iterator elements for which a predicate returns true.
+description: Count the even numbers and print the count.
+tip: iter() lends references to the array elements.
+template: "fn main() {\n    let numbers = [1, 2, 3, 4, 6];\n    // TODO: Filter even values\
+  \ and count them.\n    println!(\"0\");\n}\n"
+expected_output: '3'
+hints:
+- Start with numbers.iter().
+- Use filter(|n| *n % 2 == 0).count().

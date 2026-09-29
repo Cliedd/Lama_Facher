@@ -111,3 +111,53 @@ fn test_command_validates_starter_catalog() {
     );
     assert!(String::from_utf8_lossy(&output.stdout).contains("1 passed, 0 failed"));
 }
+
+#[test]
+fn progress_export_and_reset_preserve_only_requested_records() {
+    let root = TempDir::new().unwrap();
+    let storage = LocalStorage::at(root.path().join("progress"));
+    let mut progress = storage.load_progress().unwrap();
+    progress.record_failed_attempt("rust_01", "line,\"quoted\"\nnext");
+    progress.mark_completed("java_01", "class Main {}\n");
+    storage.save_progress(&progress).unwrap();
+
+    let json = forge(&root, &["progress", "export"]);
+    assert!(json.status.success());
+    let exported: forge::core::progress::UserProgress =
+        serde_json::from_slice(&json.stdout).unwrap();
+    assert_eq!(exported.exercises["rust_01"].attempts, 1);
+    assert_eq!(exported.exercises["java_01"].status, Status::Completed);
+    assert_eq!(
+        exported.exercises["rust_01"].last_code,
+        progress.exercises["rust_01"].last_code
+    );
+
+    let csv = forge(&root, &["progress", "export", "--format", "csv"]);
+    assert!(csv.status.success());
+    let csv = String::from_utf8(csv.stdout).unwrap();
+    assert!(csv.starts_with("exercise_id,status,attempts,last_code\r\n"));
+    assert!(csv.find("java_01").unwrap() < csv.find("rust_01").unwrap());
+    assert!(csv.contains("\"line,\"\"quoted\"\"\nnext\""));
+
+    let refused = forge(&root, &["progress", "reset"]);
+    assert!(!refused.status.success());
+    assert_eq!(storage.load_progress().unwrap().exercises.len(), 2);
+
+    let one = forge(&root, &["progress", "reset", "--exercise", "rust_01"]);
+    assert!(one.status.success());
+    let remaining = storage.load_progress().unwrap();
+    assert!(!remaining.exercises.contains_key("rust_01"));
+    assert_eq!(remaining.exercises["java_01"].status, Status::Completed);
+
+    let missing = forge(&root, &["progress", "reset", "--exercise", "rust_01"]);
+    assert!(!missing.status.success());
+
+    let all = forge(&root, &["progress", "reset", "--yes"]);
+    assert!(all.status.success());
+    assert!(!storage.progress_path().exists());
+    assert!(storage.load_progress().unwrap().exercises.is_empty());
+
+    let empty = forge(&root, &["progress", "export"]);
+    assert!(empty.status.success());
+    assert!(String::from_utf8_lossy(&empty.stdout).contains("\"exercises\": {}"));
+}

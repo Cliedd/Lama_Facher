@@ -2,6 +2,8 @@
 name = "forge"
 version = "0.1.0"
 edition = "2021"
+description = "Learn Rust and Java through terminal exercises"
+repository = "https://github.com/Cliedd/Lama_Facher"
 
 [dependencies]
 ratatui = "0.29"

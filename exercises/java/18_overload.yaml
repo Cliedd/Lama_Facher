@@ -1,0 +1,16 @@
+id: java_18_overload
+title: Overload a method
+language: java
+difficulty: Intermediate
+chapter: 06 · Designing reusable code
+lesson: Methods can share a name when their parameter lists differ.
+description: Complete the two-argument sum method so the program prints 9.
+tip: The one-argument method already works; keep its behavior.
+template: "public class Main {\n    static int sum(int value) { return value; }\n    static\
+  \ int sum(int left, int right) {\n        // TODO: Combine both arguments.\n        return\
+  \ 0;\n    }\n    public static void main(String[] args) {\n        System.out.println(sum(4,\
+  \ 5));\n    }\n}\n"
+expected_output: '9'
+hints:
+- Use both parameters.
+- Return left + right.

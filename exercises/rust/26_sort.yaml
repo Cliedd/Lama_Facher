@@ -1,0 +1,14 @@
+id: rust_26_sort
+title: Find the median score
+language: rust
+difficulty: Intermediate
+chapter: 08 · Small programs
+lesson: sort orders a mutable vector in ascending order.
+description: Sort the scores and print the middle value.
+tip: A five-element vector has middle index 2.
+template: "fn main() {\n    let mut scores = vec![9, 7, 2, 1, 5];\n    // TODO: Sort the vector.\n\
+  \    println!(\"{}\", scores[2]);\n}\n"
+expected_output: '5'
+hints:
+- Vec has a sort() method.
+- Call scores.sort() before printing.

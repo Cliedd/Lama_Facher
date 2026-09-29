@@ -15,33 +15,20 @@ try {
     } else {
         $url = "https://github.com/$repo/releases/download/$version/forge-windows-x86_64.zip"
     }
-    try {
-        Write-Host "Downloading Forge ($version)..."
-        Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile (Join-Path $tempDir 'forge.zip')
-        Expand-Archive -LiteralPath (Join-Path $tempDir 'forge.zip') -DestinationPath $packageDir
-    } catch {
-        Write-Host 'No release archive available; building from source.'
-    }
+    $archivePath = Join-Path $tempDir 'forge.zip'
+    $checksumsPath = Join-Path $tempDir 'SHA256SUMS'
+    $checksumsUrl = $url -replace 'forge-windows-x86_64\.zip$', 'SHA256SUMS'
+    Write-Host "Downloading Forge ($version)..."
+    Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $archivePath
+    Invoke-WebRequest -UseBasicParsing -Uri $checksumsUrl -OutFile $checksumsPath
+    $checksums = Get-Content -LiteralPath $checksumsPath -Raw
+    $checksumMatch = [regex]::Match($checksums, '(?m)^([A-Fa-f0-9]{64})\s+forge-windows-x86_64\.zip\s*$')
+    if (-not $checksumMatch.Success) { throw 'Release checksum is missing or invalid.' }
+    $actualChecksum = (Get-FileHash -LiteralPath $archivePath -Algorithm SHA256).Hash
+    if ($actualChecksum -ine $checksumMatch.Groups[1].Value) { throw 'Archive checksum mismatch; installation stopped.' }
+    Expand-Archive -LiteralPath $archivePath -DestinationPath $packageDir
 
-    if (-not (Test-Path (Join-Path $packageDir 'forge.exe')) -or -not (Test-Path (Join-Path $packageDir 'exercises'))) {
-        if (-not (Get-Command git -ErrorAction SilentlyContinue)) { throw 'Git is required to build Forge from source.' }
-        if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) { throw 'Rust/Cargo is required to build Forge from source. Install it from https://rustup.rs.' }
-        if ((Test-Path 'Cargo.toml') -and (Test-Path 'exercises')) {
-            $sourceDir = (Get-Location).Path
-        } else {
-            $sourceDir = Join-Path $tempDir 'source'
-            git clone --depth 1 "https://github.com/$repo.git" $sourceDir
-            if ($LASTEXITCODE -ne 0) { throw 'Could not download Forge source.' }
-        }
-        Push-Location $sourceDir
-        try {
-            cargo build --release --locked
-            if ($LASTEXITCODE -ne 0) { throw 'Forge build failed.' }
-        } finally { Pop-Location }
-        Copy-Item (Join-Path $sourceDir 'target\release\forge.exe') $packageDir
-        Copy-Item (Join-Path $sourceDir 'exercises') $packageDir -Recurse
-    }
-
+    if (-not (Test-Path (Join-Path $packageDir 'forge.exe'))) { throw 'Package is missing forge.exe.' }
     if (-not (Test-Path (Join-Path $packageDir 'exercises\java')) -or -not (Test-Path (Join-Path $packageDir 'exercises\rust'))) {
         throw 'Package is missing Java or Rust exercises.'
     }

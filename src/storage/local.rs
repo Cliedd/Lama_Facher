@@ -52,4 +52,13 @@ impl LocalStorage {
         tmp.persist(path).map_err(|e| ForgeError::Io(e.error))?;
         Ok(())
     }
+
+    pub fn reset_progress(&self) -> Result<()> {
+        let path = self.progress_path();
+        match std::fs::remove_file(path) {
+            Ok(()) => Ok(()),
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(()),
+            Err(error) => Err(error.into()),
+        }
+    }
 }

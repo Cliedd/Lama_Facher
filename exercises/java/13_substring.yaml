@@ -1,0 +1,15 @@
+id: java_13_substring
+title: Extract a word
+language: java
+difficulty: Intermediate
+chapter: 05 · Working with text and collections
+lesson: substring(start, end) takes characters from start up to, but not including, end.
+description: Extract Forge from the label and print it.
+tip: Index 0 is the first character; the comma occupies index 5.
+template: "public class Main {\n    public static void main(String[] args) {\n        String\
+  \ label = \"Hello, Forge!\";\n        // TODO: Extract Forge with substring.\n        System.out.println(label);\n\
+  \    }\n}\n"
+expected_output: Forge
+hints:
+- Find the F and the character after e.
+- Use label.substring(7, 12).
