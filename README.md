@@ -1,5 +1,21 @@
 # Forge
 
+<p align="center">
+  <img src="assets/forge-hero.png" alt="Forge — apprendre Java et Rust dans le terminal" width="720">
+</p>
+
+<p align="center">
+  <strong>Apprendre Java et Rust en pratiquant, directement dans votre terminal.</strong><br>
+  Un parcours progressif en français, avec exercices, mini-leçons, indices et suivi de progression.
+</p>
+
+<p align="center">
+  <a href="https://github.com/Cliedd/Lama_Facher/releases"><img src="https://img.shields.io/github/v/release/Cliedd/Lama_Facher?style=flat-square&color=9cff3b&label=version" alt="Version"></a>
+  <a href="https://github.com/Cliedd/Lama_Facher/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/Cliedd/Lama_Facher/ci.yml?style=flat-square&label=CI" alt="CI"></a>
+  <img src="https://img.shields.io/badge/exercices-60-9cff3b?style=flat-square" alt="60 exercices">
+  <img src="https://img.shields.io/badge/langues-Java%20%7C%20Rust-111820?style=flat-square" alt="Java et Rust">
+</p>
+
 Forge is a terminal course for learning Rust and Java through short exercises. Pick a language, read an objective, edit code in the colorized terminal editor, run it against the expected result, reveal a hint when needed, and return later to your saved draft. Progress stays on your computer.
 
 ```text
@@ -14,7 +30,18 @@ Forge is a terminal course for learning Rust and Java through short exercises. P
   ↑↓ choisir   Entrée ouvrir   F1 aide   q quitter
 ```
 
-This is an illustrative terminal preview. The real layout adapts to your terminal width and shows the current exercise counts. The editor has separate panels for the objective and hints, code, compiler diagnostics, and program output.
+Cette illustration présente l'expérience Forge. Le vrai TUI s'adapte à la largeur du terminal et conserve votre progression localement.
+
+## Pourquoi Forge ?
+
+Forge est conçu pour commencer simplement, comprendre chaque notion et progresser sans se perdre :
+
+- **Un accueil guidé** : choix de Java ou Rust, commandes utiles et repères dès la première ouverture.
+- **60 exercices** : 30 en Java et 30 en Rust, du premier `Hello, world!` aux collections, erreurs, traits et mini-projets.
+- **Une mini-leçon pour chaque exercice** : objectif clair, explication courte, conseil et indices progressifs.
+- **Un éditeur dans le terminal** : code colorisé, diagnostics du compilateur, résultat et validation sans changer de fenêtre.
+- **Une progression persistante** : exercices terminés, brouillons, tentatives, prochain exercice et sauvegardes exportables.
+- **Une expérience en français** : interface et parcours pensés pour apprendre à son rythme, même en débutant.
 
 ## Install and start
 
@@ -30,7 +57,7 @@ Windows PowerShell:
 irm https://raw.githubusercontent.com/Cliedd/Lama_Facher/main/install.ps1 | iex
 ```
 
-Open a new terminal and run `forge doctor`, then `forge start`. The release installer places Forge and the exercises in your user account without administrator access, Git or Cargo. It verifies the archive against the published SHA-256 checksums before installing. Prebuilt releases cover Linux x86-64, macOS Apple Silicon and Intel, and Windows x86-64. A published release is required for one-command binary installation; if none exists yet, use the source build under [Development](#development). Network access is required for installation.
+Open a new terminal and run `forge doctor`, then `forge start`. The release installer places Forge and the exercises in your user account without administrator access, Git or Cargo. It verifies the archive against the published SHA-256 checksums before installing. Prebuilt releases cover Linux x86-64, macOS Apple Silicon and Intel, and Windows x86-64. Network access is required for installation.
 
 On Linux/macOS the launcher is `~/.local/bin/forge`. If the command is not found, add it to your shell `PATH`:
 
@@ -44,10 +71,10 @@ Forge can open without compilers, but completing Rust exercises requires [Rust](
 
 ## Learning path
 
-1. Run `forge start` and choose Rust or Java with ↑/↓ and Enter.
-2. Open an exercise. The list shows completed, in-progress and untouched items.
-3. Edit the starter code. Press F2 for the next hint, Ctrl+S to save a draft, and Ctrl+R to compile and run. F1 shows all shortcuts.
-4. Review the result and compiler diagnostics, then continue to the next exercise. `forge progress` shows the next item for each language.
+1. Lancez `forge start` et choisissez **Java** ou **Rust** avec ↑/↓ puis Entrée.
+2. Ouvrez l'exercice recommandé. Lisez la mini-leçon et l'objectif avant de coder.
+3. Modifiez le code de départ. F2 révèle un indice, Ctrl+S sauvegarde, Ctrl+R compile et exécute, F1 affiche l'aide.
+4. Lisez les diagnostics, corrigez, puis passez à la suite. `forge progress` indique toujours où vous en êtes.
 
 You can also work in your own editor:
 
@@ -70,6 +97,7 @@ Use a `.java` file for Java exercises. `forge run <id>` without `--file` uses th
 | `forge progress` | Show completion counts and next exercises |
 | `forge progress export --format json` | Export a lossless backup to standard output |
 | `forge progress export --format csv` | Export a spreadsheet-friendly report |
+| `forge progress import backup.json` | Restore or merge a progress backup |
 | `forge progress reset --exercise <id>` | Clear one exercise, including its draft |
 | `forge progress reset --yes` | Clear all local progress and drafts |
 | `forge doctor` | Check compilers, exercise data and progress storage |
@@ -82,7 +110,7 @@ forge progress export --format csv > forge-progress.csv
 forge progress reset --yes
 ```
 
-JSON retains exercise IDs, statuses, attempt counts and saved source code. CSV has the columns `exercise_id,status,attempts,last_code`; it quotes commas, quotes and multiline code for spreadsheet import. Exports include saved records for exercises that have since been removed from the course. The export contains your code, so handle it as a personal file. The CLI does not currently include an import command. Progress normally lives at `~/.config/forge/progress.json` on Unix; `FORGE_PROGRESS_DIR` can override the directory. On Windows, `forge doctor` prints the exact path.
+JSON retains exercise IDs, statuses, attempt counts and saved source code. CSV has the columns `exercise_id,status,attempts,last_code`; it quotes commas, quotes and multiline code for spreadsheet import. Exports include saved records for exercises that have since been removed from the course. Use `forge progress import backup.json` to restore a backup safely; local drafts are preserved when both copies differ. Progress normally lives at `~/.config/forge/progress.json` on Unix; `FORGE_PROGRESS_DIR` can override the directory. On Windows, `forge doctor` prints the exact path.
 
 ## Update and uninstall
 
@@ -121,7 +149,7 @@ Run from the repository root, or point `FORGE_HOME` at a directory containing `e
 cargo test --locked --test tui_render
 ```
 
-For a manual visual check, open `forge tui` in a terminal at least 100 columns by 32 rows and again at a smaller size. Check the language picker, exercise list, editor panels, F1 help, F2 hints, Ctrl+S, Ctrl+R compiler feedback, and Esc. Repeat in the terminals you support (for example GNOME Terminal, macOS Terminal, and Windows Terminal); the in-memory test cannot verify font rendering, color fidelity or key handling in each emulator.
+For a manual visual check, open `forge tui` in a terminal at least 100 columns by 32 rows and again at a smaller size. Check the language picker, exercise list, editor panels, F1 help, F2 hints, Ctrl+S, Ctrl+R compiler feedback, and Esc. The automated pseudo-terminal smoke test covers `xterm`, `xterm-256color` and `screen-256color`; repeat the checklist in the terminals you support (GNOME Terminal, macOS Terminal and Windows Terminal) to verify fonts, colors and key handling.
 
 Use the [terminal verification checklist](docs/TUI_VERIFY.md) to record each emulator's result.
 
@@ -129,7 +157,7 @@ Program runs have a 5 second timeout; compilation has 30 seconds. Each output st
 
 In the TUI, compilation and validation run in the background. The editor shows an in-progress message and remains responsive; editing is briefly paused until the result arrives. F1 and Ctrl+Q remain available.
 
-The workflow in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) builds and tests on Linux, macOS Apple Silicon and Intel, and Windows. To publish a release, first ensure the version in `Cargo.toml` matches the tag (for example `0.1.0` and `v0.1.0`), verify the CI checks on `main`, and create and push that tag:
+The workflow in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) builds and tests on Linux, macOS Apple Silicon and Intel, and Windows. It also runs the pseudo-terminal TUI smoke test on Unix. To publish a release, first ensure the version in `Cargo.toml` matches the tag, verify the CI checks on `main`, and create and push that tag:
 
 ```sh
 git tag v0.1.0
