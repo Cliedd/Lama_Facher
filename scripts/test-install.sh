@@ -31,5 +31,5 @@ if PATH="$TMP_DIR/mock-bin:$PATH" HOME="$TMP_DIR/home" FORGE_TEST_RELEASE_DIR="$
   printf 'Corrupt release was installed.\n' >&2
   exit 1
 fi
-rg -q 'checksum mismatch' "$TMP_DIR/rejected.log"
+grep -qi 'checksum mismatch' "$TMP_DIR/rejected.log"
 [ ! -e "$TMP_DIR/rejected-bin/forge" ]
