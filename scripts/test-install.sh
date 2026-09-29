@@ -13,7 +13,7 @@ cd "$TMP_DIR"
 HOME="$TMP_DIR/home" FORGE_ARCHIVE="$TMP_DIR/forge.tar.gz" FORGE_INSTALL_DIR="$TMP_DIR/data" FORGE_BIN_DIR="$TMP_DIR/bin" bash "$ROOT/install.sh"
 HOME="$TMP_DIR/home" "$TMP_DIR/bin/forge" doctor
 HOME="$TMP_DIR/home" "$TMP_DIR/bin/forge" list --language rust > "$TMP_DIR/list.txt"
-rg -q '^ID[[:space:]]+LANG' "$TMP_DIR/list.txt"
+grep -Eq '^ID[[:space:]]+LANG' "$TMP_DIR/list.txt"
 
 mkdir -p "$TMP_DIR/release" "$TMP_DIR/mock-bin"
 cp "$TMP_DIR/forge.tar.gz" "$TMP_DIR/release/forge-linux-x86_64.tar.gz"
