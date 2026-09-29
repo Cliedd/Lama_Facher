@@ -1,0 +1,15 @@
+id: rust_09_struct
+title: Give a struct a method
+language: rust
+difficulty: Intermediate
+chapter: 03 · Reusable code and data
+lesson: A struct groups fields; an impl block adds methods that read them through &self.
+description: Make Rectangle::area return width times height.
+tip: The struct instance and method call are provided.
+template: "struct Rectangle { width: i32, height: i32 }\nimpl Rectangle {\n    fn area(&self)\
+  \ -> i32 {\n        // TODO: Compute area.\n        0\n    }\n}\nfn main() {\n    let shape\
+  \ = Rectangle { width: 3, height: 4 };\n    println!(\"{}\", shape.area());\n}\n"
+expected_output: '12'
+hints:
+- Use self.width and self.height.
+- Make self.width * self.height the final expression.

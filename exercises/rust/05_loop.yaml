@@ -1,0 +1,14 @@
+id: rust_05_loop
+title: Sum a short sequence
+language: rust
+difficulty: Beginner
+chapter: 02 · Decisions and repetition
+lesson: The range 1..=5 includes both endpoints; for visits each value.
+description: Add numbers 1 through 5 and print the total.
+tip: total needs mut because the loop updates it.
+template: "fn main() {\n    let mut total = 0;\n    // TODO: Add values in 1..=5.\n    println!(\"\
+  {total}\");\n}\n"
+expected_output: '15'
+hints:
+- Use for value in 1..=5 { ... }.
+- Inside the loop, write total += value;.

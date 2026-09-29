@@ -1,0 +1,14 @@
+id: java_01_hello
+title: Print your first message
+language: java
+difficulty: Beginner
+chapter: 01 · First steps
+lesson: A Java program starts in main. System.out.println writes one line.
+description: Print Hello, Forge! exactly, including punctuation.
+tip: Keep the public class named Main because the file is Main.java.
+template: "public class Main {\n    public static void main(String[] args) {\n        // TODO:\
+  \ Print the greeting.\n        System.out.println(\"Replace me\");\n    }\n}\n"
+expected_output: Hello, Forge!
+hints:
+- Use System.out.println with a string literal.
+- Put "Hello, Forge!" inside the parentheses.

@@ -1,0 +1,14 @@
+id: rust_06_function
+title: Write a reusable function
+language: rust
+difficulty: Beginner
+chapter: 02 · Decisions and repetition
+lesson: A function declares parameter and return types; its final expression can be the result.
+description: Complete double_value so that double_value(7) prints 14.
+tip: A final expression has no semicolon.
+template: "fn double_value(value: i32) -> i32 {\n    // TODO: Return twice value.\n    0\n}\n\
+  fn main() {\n    println!(\"{}\", double_value(7));\n}\n"
+expected_output: '14'
+hints:
+- Use the value parameter.
+- Make value * 2 the final expression.

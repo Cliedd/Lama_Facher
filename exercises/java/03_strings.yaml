@@ -1,0 +1,15 @@
+id: java_03_strings
+title: Build a greeting
+language: java
+difficulty: Beginner
+chapter: 01 · First steps
+lesson: The + operator joins strings; spaces and punctuation must be included.
+description: Print Hello, Ada! using the name variable.
+tip: Join a prefix, the variable, and punctuation.
+template: "public class Main {\n    public static void main(String[] args) {\n        String\
+  \ name = \"Ada\";\n        // TODO: Use name in the greeting.\n        System.out.println(name);\n\
+  \    }\n}\n"
+expected_output: Hello, Ada!
+hints:
+- Join strings with +.
+- Print "Hello, " + name + "!".

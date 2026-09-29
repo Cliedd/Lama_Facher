@@ -1,0 +1,88 @@
+name: CI and release
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            artifact: linux-x86_64
+          - os: macos-15
+            artifact: macos-aarch64
+          - os: windows-2022
+            artifact: windows-x86_64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Check and test
+        run: |
+          cargo check --locked --all-targets
+          cargo test --locked
+      - name: Build release binary
+        run: cargo build --release --locked
+      - name: Check installer syntax
+        if: runner.os != 'Windows'
+        run: bash -n install.sh
+      - name: Smoke test Unix installer
+        if: runner.os == 'Linux'
+        run: bash scripts/test-install.sh
+      - name: Package Unix release
+        if: startsWith(github.ref, 'refs/tags/') && runner.os != 'Windows'
+        shell: bash
+        run: |
+          mkdir package
+          cp target/release/forge package/forge
+          cp -R exercises package/exercises
+          tar -czf forge-${{ matrix.artifact }}.tar.gz -C package .
+      - name: Package Windows release
+        if: startsWith(github.ref, 'refs/tags/') && runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory package | Out-Null
+          Copy-Item target/release/forge.exe package/forge.exe
+          Copy-Item exercises package/exercises -Recurse
+          Compress-Archive -Path package/* -DestinationPath forge-${{ matrix.artifact }}.zip
+      - uses: actions/upload-artifact@v4
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          name: forge-${{ matrix.artifact }}
+          path: forge-${{ matrix.artifact }}.*
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: forge-*
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            forge-linux-x86_64.tar.gz
+            forge-macos-aarch64.tar.gz
+            forge-windows-x86_64.zip
+          generate_release_notes: true

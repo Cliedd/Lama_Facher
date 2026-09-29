@@ -1,0 +1,15 @@
+id: java_07_array
+title: Find the largest number
+language: java
+difficulty: Intermediate
+chapter: 03 · Reusable code and data
+lesson: An array groups values of one type; length gives its element count.
+description: Find the maximum in {4, 9, 2, 7}.
+tip: Start maximum at the first element so negative inputs work too.
+template: "public class Main {\n    public static void main(String[] args) {\n        int[]\
+  \ numbers = {4, 9, 2, 7};\n        int maximum = numbers[0];\n        // TODO: Visit each\
+  \ number and update maximum.\n        System.out.println(maximum);\n    }\n}\n"
+expected_output: '9'
+hints:
+- Loop while i < numbers.length.
+- If numbers[i] > maximum, assign numbers[i] to maximum.

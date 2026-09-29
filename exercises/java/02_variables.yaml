@@ -1,0 +1,15 @@
+id: java_02_variables
+title: Add two scores
+language: java
+difficulty: Beginner
+chapter: 01 · First steps
+lesson: An int stores a whole number. Expressions can combine variables.
+description: Print the sum of first and second.
+tip: Calculate from the named variables instead of typing the answer.
+template: "public class Main {\n    public static void main(String[] args) {\n        int first\
+  \ = 12;\n        int second = 8;\n        // TODO: Print their sum.\n        System.out.println(first);\n\
+  \    }\n}\n"
+expected_output: '20'
+hints:
+- Use the + operator.
+- Pass first + second to System.out.println.

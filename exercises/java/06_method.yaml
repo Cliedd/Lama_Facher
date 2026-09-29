@@ -1,0 +1,15 @@
+id: java_06_method
+title: Write a reusable method
+language: java
+difficulty: Beginner
+chapter: 02 · Decisions and repetition
+lesson: A static method can be called from main. return sends a result back.
+description: Complete doubleValue so that doubleValue(7) prints 14.
+tip: Keep the signature; replace only the placeholder return value.
+template: "public class Main {\n    static int doubleValue(int value) {\n        // TODO: Return\
+  \ twice value.\n        return 0;\n    }\n    public static void main(String[] args) {\n \
+  \       System.out.println(doubleValue(7));\n    }\n}\n"
+expected_output: '14'
+hints:
+- Use the value parameter.
+- Return value * 2.
