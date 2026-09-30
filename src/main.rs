@@ -3,6 +3,7 @@ use clap::Parser;
 use forge::cli::{Cli, Commands, ExportFormat, ProgressCommands};
 use forge::core::exercise::Exercise;
 use forge::core::progress::Status;
+use forge::core::settings::Locale;
 use forge::installer::rustup::RustupInstaller;
 use forge::installer::sdkman::SdkmanInstaller;
 use forge::storage::local::LocalStorage;
@@ -15,7 +16,8 @@ fn main() -> Result<()> {
 }
 
 fn catalog() -> Result<Vec<Exercise>> {
-    let dir = config::try_exercises_dir()?;
+    let locale = LocalStorage::new()?.load_settings()?.locale;
+    let dir = config::try_exercises_dir_for(locale)?;
     let exercises = Exercise::load_all_from_dir(&dir)?;
     if exercises.is_empty() {
         bail!("No exercises found in {}", dir.display());
@@ -43,6 +45,7 @@ fn language(input: &str) -> Result<&'static str> {
 fn execute(cli: Cli) -> Result<()> {
     match cli.command {
         Some(Commands::Tui) | None => tui::run_tui()?,
+        Some(Commands::Language { language }) => choose_locale(language)?,
         Some(Commands::Start { language: chosen }) => {
             println!("\nForge — learn by building\n");
             if let Some(chosen) = chosen {
@@ -162,6 +165,24 @@ fn execute(cli: Cli) -> Result<()> {
             Some(other) => bail!("Unknown toolchain '{other}'. Choose rust or java"),
         },
     }
+    Ok(())
+}
+
+fn choose_locale(value: Option<String>) -> Result<()> {
+    let storage = LocalStorage::new()?;
+    let locale = match value {
+        Some(value) => Locale::parse(&value)?,
+        None => {
+            println!("Choose Forge language / Choisis la langue de Forge:\n  fr  Français\n  en  English");
+            return Ok(());
+        }
+    };
+    storage.save_locale(locale)?;
+    println!(
+        "Forge language set to {} ({}).",
+        locale.code(),
+        locale.label()
+    );
     Ok(())
 }
 

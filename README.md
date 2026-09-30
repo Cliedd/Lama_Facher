@@ -76,6 +76,15 @@ Forge can open without compilers, but completing Rust exercises requires [Rust](
 3. Modifiez le code de départ. F2 révèle un indice, Ctrl+S sauvegarde, Ctrl+R compile et exécute, F1 affiche l'aide.
 4. Lisez les diagnostics, corrigez, puis passez à la suite. `forge progress` indique toujours où vous en êtes.
 
+Au premier lancement, Forge demande aussi la langue de l'interface et des exercices. Vous pouvez la changer à tout moment sans perdre votre travail :
+
+```sh
+forge language en   # English
+forge language fr   # Français
+```
+
+Le changement recharge le catalogue traduit, tandis que les mêmes identifiants d'exercices, brouillons, tentatives et validations sont conservés.
+
 You can also work in your own editor:
 
 ```sh

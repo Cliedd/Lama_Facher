@@ -1,0 +1,19 @@
+id: rust_12_project
+title: Summarize a shopping basket
+language: rust
+difficulty: Intermediate
+chapter: 04 · Concrete cases
+lesson: A small program combines vectors, iteration, and conditions.
+description: Sum prices [3, 7, 2], subtract 2 when the total exceeds 10, and print the result.
+tip: Calculate from the data; do not print a fixed answer.
+template: "fn main() {\n    let prices = vec![3, 7, 2];\n    let mut total = 0;\n    // TODO:\
+  \ Sum prices and apply the discount.\n    println!(\"{total}\");\n}\n"
+expected_output: '10'
+hints:
+- Iterate over &prices and add each price to total.
+- After the loop, if total > 10, subtract 2.
+test_cases:
+- name: no discount
+  replace: vec![3, 7, 2]
+  with: vec![3, 4, 2]
+  expected_output: '9'

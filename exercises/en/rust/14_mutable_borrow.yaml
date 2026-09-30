@@ -1,0 +1,15 @@
+id: rust_14_mutable_borrow
+title: Update through a borrow
+language: rust
+difficulty: Intermediate
+chapter: 05 · Text and collections
+lesson: A mutable reference &mut T lets a function update a value owned by its caller.
+description: Complete add_bonus so the score becomes 15.
+tip: Dereference the mutable reference to reach the integer.
+template: "fn add_bonus(score: &mut i32) {\n    // TODO: Add 5 through the mutable reference.\n\
+  }\nfn main() {\n    let mut score = 10;\n    add_bonus(&mut score);\n    println!(\"{score}\"\
+  );\n}\n"
+expected_output: '15'
+hints:
+- Use *score to access the value.
+- Write *score += 5; inside add_bonus.

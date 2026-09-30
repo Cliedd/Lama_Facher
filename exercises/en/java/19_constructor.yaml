@@ -1,0 +1,16 @@
+id: java_19_constructor
+title: Initialize an account
+language: java
+difficulty: Intermediate
+chapter: 06 · Designing reusable code
+lesson: A constructor gives a new object its initial state using its arguments.
+description: Store the initial balance and print it through balance().
+tip: this.balance refers to the object's field.
+template: "public class Main {\n    public static void main(String[] args) {\n        Account\
+  \ account = new Account(25);\n        System.out.println(account.balance());\n    }\n}\nclass\
+  \ Account {\n    private int balance;\n    Account(int initial) {\n        // TODO: Save initial\
+  \ in the field.\n    }\n    int balance() { return balance; }\n}\n"
+expected_output: '25'
+hints:
+- Assign the constructor argument to a field.
+- Use this.balance = initial;.

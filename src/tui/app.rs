@@ -3,6 +3,7 @@ use crate::core::errors::Result;
 use crate::core::exercise::Exercise;
 use crate::core::progress::{Status, UserProgress};
 use crate::core::session::Session;
+use crate::core::settings::Locale;
 use crate::lang;
 use crate::storage::local::LocalStorage;
 use crate::tui::widgets::editor::EditorState;
@@ -22,6 +23,7 @@ pub struct PendingRun {
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum AppMode {
+    Locale,
     Home,
     List,
     Editor,
@@ -34,9 +36,11 @@ pub struct App {
     pub exercises: Vec<Exercise>,
     pub language: Option<String>,
     pub home_selection: usize,
+    pub locale_selection: usize,
     pub selected_index: usize,
     pub progress: UserProgress,
     pub storage: LocalStorage,
+    pub locale: Locale,
     pub editor_state: EditorState,
     pub diagnostics: Vec<Diagnostic>,
     pub current_output: String,
@@ -50,17 +54,25 @@ pub struct App {
 impl App {
     pub fn new() -> crate::core::errors::Result<Self> {
         let storage = LocalStorage::new()?;
+        let locale = storage.load_settings()?.locale;
         let progress = storage.load_progress()?;
-        let exercises = Exercise::load_all_from_dir(&crate::config::exercises_dir())?;
+        let exercises = Exercise::load_all_from_dir(&crate::config::exercises_dir_for(locale))?;
+        let first_run = !storage.settings_path().exists();
         Ok(Self {
-            mode: AppMode::Home,
+            mode: if first_run {
+                AppMode::Locale
+            } else {
+                AppMode::Home
+            },
             previous_mode: AppMode::Home,
             exercises,
             language: None,
             home_selection: 0,
+            locale_selection: usize::from(locale == Locale::En),
             selected_index: 0,
             progress,
             storage,
+            locale,
             editor_state: EditorState::default(),
             diagnostics: Vec::new(),
             current_output: String::new(),
@@ -70,6 +82,25 @@ impl App {
             should_quit: false,
             pending: None,
         })
+    }
+
+    pub fn choose_locale(&mut self) -> crate::core::errors::Result<()> {
+        let locale = if self.locale_selection == 1 {
+            Locale::En
+        } else {
+            Locale::Fr
+        };
+        self.storage.save_locale(locale)?;
+        self.locale = locale;
+        self.exercises = Exercise::load_all_from_dir(&crate::config::exercises_dir_for(locale))?;
+        self.mode = AppMode::Home;
+        Ok(())
+    }
+
+    pub fn open_locale_picker(&mut self) {
+        self.locale_selection = usize::from(self.locale == Locale::En);
+        self.previous_mode = self.mode;
+        self.mode = AppMode::Locale;
     }
 
     pub fn languages(&self) -> Vec<String> {

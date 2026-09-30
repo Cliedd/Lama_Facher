@@ -1,0 +1,16 @@
+id: java_09_list
+title: Collect passing scores
+language: java
+difficulty: Intermediate
+chapter: 03 · Reusable code and data
+lesson: ArrayList grows as elements are added; size() gives its length.
+description: Add only scores of at least 50 and print how many passed.
+tip: Focus on filtering; the import and list are ready.
+template: "import java.util.ArrayList;\npublic class Main {\n    public static void main(String[]\
+  \ args) {\n        int[] scores = {42, 80, 55, 31};\n        ArrayList<Integer> passing =\
+  \ new ArrayList<>();\n        // TODO: Add each passing score.\n        System.out.println(passing.size());\n\
+  \    }\n}\n"
+expected_output: '2'
+hints:
+- Loop over scores and compare each score with 50.
+- Call passing.add(score) when score >= 50.

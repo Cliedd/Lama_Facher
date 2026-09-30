@@ -1,0 +1,20 @@
+id: java_12_project
+title: Summarize a shopping basket
+language: java
+difficulty: Intermediate
+chapter: 04 · Concrete cases
+lesson: A small program combines arrays, loops, and conditions.
+description: Sum prices {3, 7, 2}, subtract 2 when the total exceeds 10, and print the result.
+tip: Calculate from the data; do not print a fixed answer.
+template: "public class Main {\n    public static void main(String[] args) {\n        int[]\
+  \ prices = {3, 7, 2};\n        int total = 0;\n        // TODO: Sum prices and apply the discount.\n\
+  \        System.out.println(total);\n    }\n}\n"
+expected_output: '10'
+hints:
+- Loop through prices and add each to total.
+- After the loop, if total > 10, subtract 2.
+test_cases:
+- name: no discount
+  replace: '{3, 7, 2}'
+  with: '{3, 4, 2}'
+  expected_output: '9'

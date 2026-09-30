@@ -1,0 +1,15 @@
+id: java_23_stream_filter
+title: Filter even numbers
+language: java
+difficulty: Intermediate
+chapter: 07 · Safe transformations
+lesson: A stream can filter elements and count those that satisfy a predicate.
+description: Count the even values in numbers and print the result.
+tip: The stream is consumed by count().
+template: "import java.util.Arrays;\npublic class Main {\n    public static void main(String[]\
+  \ args) {\n        int[] numbers = {1, 2, 3, 4, 6};\n        // TODO: Filter even numbers\
+  \ in the stream.\n        System.out.println(0);\n    }\n}\n"
+expected_output: '3'
+hints:
+- Start with Arrays.stream(numbers).
+- Use filter(n -> n % 2 == 0).count().

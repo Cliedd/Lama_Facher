@@ -1,0 +1,28 @@
+id: rust_04_condition
+title: Choose a ticket price
+language: rust
+difficulty: Beginner
+chapter: 02 · Decisions and loops
+lesson: 'if is an expression: its branches can produce a value.'
+description: Visitors younger than 18 pay 5; everyone else pays 10. Print the price for age
+  16.
+tip: Both branches must have compatible types.
+template: "fn main() {\n    let age = 16;\n    // TODO: Replace the placeholder with an if expression.\n\
+  \    let price = 0;\n    println!(\"{price}\");\n}\n"
+expected_output: '5'
+hints:
+- Compare age < 18.
+- Use let price = if age < 18 { 5 } else { 10 };
+test_cases:
+- name: below boundary
+  replace: let age = 16;
+  with: let age = 17;
+  expected_output: '5'
+- name: boundary age
+  replace: let age = 16;
+  with: let age = 18;
+  expected_output: '10'
+- name: above boundary
+  replace: let age = 16;
+  with: let age = 42;
+  expected_output: '10'

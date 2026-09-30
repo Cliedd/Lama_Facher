@@ -1,0 +1,17 @@
+id: java_08_class
+title: Give an object a method
+language: java
+difficulty: Intermediate
+chapter: 03 · Reusable code and data
+lesson: A class stores fields; an instance method can read those fields.
+description: Make Rectangle.area() return width times height.
+tip: The object construction and method call are already present.
+template: "public class Main {\n    public static void main(String[] args) {\n        Rectangle\
+  \ shape = new Rectangle(3, 4);\n        System.out.println(shape.area());\n    }\n}\nclass\
+  \ Rectangle {\n    private final int width, height;\n    Rectangle(int width, int height)\
+  \ { this.width = width; this.height = height; }\n    int area() {\n        // TODO: Compute\
+  \ area.\n        return 0;\n    }\n}\n"
+expected_output: '12'
+hints:
+- Both fields are available in area().
+- Return width * height.

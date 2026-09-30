@@ -1,0 +1,14 @@
+id: rust_11_result
+title: Handle a parse error
+language: rust
+difficulty: Intermediate
+chapter: 04 · Concrete cases
+lesson: parse::<i32>() returns Result; match Ok(value) and Err(_).
+description: Parse invalid input and print invalid without panicking.
+tip: Avoid unwrap() because the input is invalid.
+template: "fn main() {\n    let input = \"twelve\";\n    // TODO: Match input.parse::<i32>()\
+  \ and handle both cases.\n    println!(\"Replace me\");\n}\n"
+expected_output: invalid
+hints:
+- Match on input.parse::<i32>().
+- Print the number in Ok(value), and "invalid" in Err(_).

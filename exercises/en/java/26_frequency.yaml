@@ -1,0 +1,21 @@
+id: java_26_frequency
+title: Find the most common fruit
+language: java
+difficulty: Intermediate
+chapter: 08 · Small programs
+lesson: A frequency map counts how many times each key occurs.
+description: Count the fruits and print the count for apple.
+tip: Reuse getOrDefault for missing keys.
+template: "import java.util.HashMap;\npublic class Main {\n    public static void main(String[]\
+  \ args) {\n        String[] fruits = {\"apple\", \"pear\", \"apple\", \"plum\", \"apple\"\
+  };\n        HashMap<String, Integer> counts = new HashMap<>();\n        // TODO: Count each\
+  \ fruit.\n        System.out.println(counts.getOrDefault(\"apple\", 0));\n    }\n}\n"
+expected_output: '3'
+hints:
+- Loop over fruits, using each fruit as a key.
+- Use counts.put(fruit, counts.getOrDefault(fruit, 0) + 1).
+test_cases:
+- name: missing apple
+  replace: '{"apple", "pear", "apple", "plum", "apple"}'
+  with: '{"pear", "plum"}'
+  expected_output: '0'

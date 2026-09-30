@@ -1,0 +1,29 @@
+id: java_04_condition
+title: Choose a ticket price
+language: java
+difficulty: Beginner
+chapter: 02 · Decisions and loops
+lesson: An if/else chooses one branch. The < operator compares numbers.
+description: Visitors younger than 18 pay 5; everyone else pays 10. Print the price for age
+  16.
+tip: Try the boundary age 18 after solving.
+template: "public class Main {\n    public static void main(String[] args) {\n        int age\
+  \ = 16;\n        int price = 0;\n        // TODO: Set price with if/else.\n        System.out.println(price);\n\
+  \    }\n}\n"
+expected_output: '5'
+hints:
+- Compare age with 18 using <.
+- Assign 5 in the if branch and 10 in the else branch.
+test_cases:
+- name: below boundary
+  replace: int age = 16;
+  with: int age = 17;
+  expected_output: '5'
+- name: boundary age
+  replace: int age = 16;
+  with: int age = 18;
+  expected_output: '10'
+- name: above boundary
+  replace: int age = 16;
+  with: int age = 42;
+  expected_output: '10'

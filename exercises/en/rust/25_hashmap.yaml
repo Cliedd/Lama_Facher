@@ -1,0 +1,20 @@
+id: rust_25_hashmap
+title: Count fruit names
+language: rust
+difficulty: Intermediate
+chapter: 08 · Small programs
+lesson: HashMap entry gives access to a key's value and inserts a default when missing.
+description: Count the fruit names and print the count for apple.
+tip: The entry API avoids a separate lookup before insertion.
+template: "use std::collections::HashMap;\nfn main() {\n    let fruits = [\"apple\", \"pear\"\
+  , \"apple\", \"apple\"];\n    let mut counts: HashMap<&str, i32> = HashMap::new();\n    //\
+  \ TODO: Count every fruit.\n    println!(\"{}\", counts.get(\"apple\").unwrap_or(&0));\n}\n"
+expected_output: '3'
+hints:
+- Loop over fruits and call counts.entry(fruit).
+- Increment *counts.entry(fruit).or_insert(0) for each fruit.
+test_cases:
+- name: missing apple
+  replace: '["apple", "pear", "apple", "apple"]'
+  with: '["pear", "plum"]'
+  expected_output: '0'

@@ -1,0 +1,14 @@
+id: rust_15_split
+title: Count words
+language: rust
+difficulty: Intermediate
+chapter: 05 · Text and collections
+lesson: split_whitespace yields words separated by any run of whitespace.
+description: Count and print the words in the sentence.
+tip: Iterator count() consumes the iterator.
+template: "fn main() {\n    let sentence = \"Rust makes systems fun\";\n    // TODO: Count the\
+  \ whitespace-separated words.\n    println!(\"0\");\n}\n"
+expected_output: '4'
+hints:
+- Call sentence.split_whitespace().
+- Print sentence.split_whitespace().count().

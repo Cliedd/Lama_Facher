@@ -1,0 +1,16 @@
+id: rust_28_inventory
+title: Update stock counts
+language: rust
+difficulty: Intermediate
+chapter: 08 · Small programs
+lesson: A map stores current stock; entry can update a key on every delivery.
+description: Process every delivery and print the stock of pens.
+tip: The same item may appear more than once.
+template: "use std::collections::HashMap;\nfn main() {\n    let deliveries = [(\"pen\", 2),\
+  \ (\"book\", 3), (\"pen\", 4)];\n    let mut stock: HashMap<&str, i32> = HashMap::new();\n\
+  \    // TODO: Add each delivery to its item.\n    println!(\"{}\", stock.get(\"pen\").unwrap_or(&0));\n\
+  }\n"
+expected_output: '6'
+hints:
+- Loop with for (item, amount) in deliveries.
+- Use *stock.entry(item).or_insert(0) += amount;.

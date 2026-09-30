@@ -1,4 +1,5 @@
 use crate::core::progress::Status;
+use crate::core::settings::Locale;
 use crate::tui::app::{App, AppMode};
 use crate::tui::widgets::diagnostic::DiagnosticWidget;
 use crate::tui::widgets::editor::EditorWidget;
@@ -12,6 +13,14 @@ use ratatui::{
 
 const ACCENT: Color = Color::Cyan;
 const MUTED: Color = Color::DarkGray;
+
+fn tr<'a>(locale: Locale, fr: &'a str, en: &'a str) -> &'a str {
+    if locale == Locale::En {
+        en
+    } else {
+        fr
+    }
+}
 
 fn panel(title: &str) -> Block<'_> {
     Block::default()
@@ -39,7 +48,11 @@ pub fn render(f: &mut Frame, app: &mut App) {
             Constraint::Length(1),
         ])
         .split(f.area());
-    let language = app.language.as_deref().unwrap_or("Choisir un langage");
+    let language = app.language.as_deref().unwrap_or(tr(
+        app.locale,
+        "Choisir un langage",
+        "Choose a language",
+    ));
     let completed = app
         .exercises
         .iter()
@@ -52,8 +65,9 @@ pub fn render(f: &mut Frame, app: &mut App) {
         ),
         Span::styled(
             format!(
-                "  {language}  •  {completed}/{} terminés",
-                app.exercises.len()
+                "  {language}  •  {completed}/{} {}",
+                app.exercises.len(),
+                tr(app.locale, "terminés", "completed")
             ),
             Style::default().fg(Color::White),
         ),
@@ -61,12 +75,14 @@ pub fn render(f: &mut Frame, app: &mut App) {
     .block(panel("Apprendre en pratiquant"));
     f.render_widget(header, chunks[0]);
     match app.mode {
+        AppMode::Locale => render_locale(f, app, chunks[1]),
         AppMode::Home => render_home(f, app, chunks[1]),
         AppMode::List => render_list(f, app, chunks[1]),
         AppMode::Editor => render_editor(f, app, chunks[1]),
         AppMode::Help => render_help(f, chunks[1]),
     }
     let shortcuts = match app.mode {
+        AppMode::Locale => " ↑↓ choisir   Entrée confirmer   q quitter ",
         AppMode::Home => " ↑↓ choisir   Entrée ouvrir   F1 aide   q quitter ",
         AppMode::List => " ↑↓/j k parcourir   Entrée ouvrir   Esc accueil   F1 aide ",
         AppMode::Editor => " Ctrl+R exécuter   Ctrl+S sauver   F2 indice   F1 aide   Esc retour ",
@@ -78,13 +94,51 @@ pub fn render(f: &mut Frame, app: &mut App) {
     );
 }
 
+fn render_locale(f: &mut Frame, app: &App, area: Rect) {
+    let labels = [
+        "Français — interface et exercices en français",
+        "English — interface and exercises in English",
+    ];
+    let items = labels
+        .into_iter()
+        .enumerate()
+        .map(|(i, label)| {
+            let marker = if i == app.locale_selection {
+                "▸"
+            } else {
+                " "
+            };
+            ListItem::new(format!("{marker} {label}")).style(if i == app.locale_selection {
+                Style::default()
+                    .fg(Color::Yellow)
+                    .add_modifier(Modifier::BOLD)
+            } else {
+                Style::default()
+            })
+        })
+        .collect::<Vec<_>>();
+    f.render_widget(
+        List::new(items)
+            .block(panel("Choisir la langue / Choose your language"))
+            .highlight_symbol("▸ "),
+        area,
+    );
+}
+
 fn render_home(f: &mut Frame, app: &App, area: Rect) {
     let sections = Layout::default()
         .direction(Direction::Vertical)
         .constraints([Constraint::Length(9), Constraint::Min(0)])
         .split(area);
-    f.render_widget(Paragraph::new("Bienvenue dans Forge !\n\n1. Choisis Java ou Rust.  2. Lis la mini-leçon et l'objectif.  3. Modifie le code de départ.\n4. Lance avec Ctrl+R, lis le résultat, puis avance à ton rythme. Tes brouillons sont sauvegardés.")
-        .block(panel("Bienvenue")).wrap(Wrap { trim: true }), sections[0]);
+    let welcome = tr(app.locale,
+        "Bienvenue dans Forge !\n\n1. Choisis Java ou Rust.  2. Lis la mini-leçon et l'objectif.  3. Modifie le code de départ.\n4. Lance avec Ctrl+R, lis le résultat, puis avance à ton rythme. Tes brouillons sont sauvegardés.",
+        "Welcome to Forge!\n\n1. Choose Java or Rust.  2. Read the mini-lesson and goal.  3. Edit the starter code.\n4. Run with Ctrl+R, read the result, and progress at your own pace. Your drafts are saved.");
+    f.render_widget(
+        Paragraph::new(welcome)
+            .block(panel(tr(app.locale, "Bienvenue", "Welcome")))
+            .wrap(Wrap { trim: true }),
+        sections[0],
+    );
     let languages = app.languages();
     let items: Vec<ListItem> = languages
         .iter()
@@ -119,13 +173,19 @@ fn render_home(f: &mut Frame, app: &App, area: Rect) {
     let message = if items.is_empty() {
         "Aucun exercice trouvé. Vérifie le dossier exercises."
     } else {
-        "Choisis ton parcours (Entrée pour continuer)"
+        tr(
+            app.locale,
+            "Choisis ton parcours (Entrée pour continuer)",
+            "Choose your path (Enter to continue)",
+        )
     };
     let mut list = items;
     list.push(ListItem::new(""));
-    list.push(ListItem::new(
+    list.push(ListItem::new(tr(
+        app.locale,
         "Commandes utiles : forge progress · forge doctor · forge help",
-    ));
+        "Useful commands: forge progress · forge doctor · forge help",
+    )));
     f.render_widget(List::new(list).block(panel(message)), sections[1]);
 }
 

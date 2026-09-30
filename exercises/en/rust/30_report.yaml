@@ -1,0 +1,19 @@
+id: rust_30_report
+title: Build a compact report
+language: rust
+difficulty: Intermediate
+chapter: 08 · Small programs
+lesson: A report combines filtering and formatting after calculating its summary.
+description: Count values above 10 and print high=<count>.
+tip: Calculate high from values, then use the provided format string.
+template: "fn main() {\n    let values = [4, 12, 15, 8, 20];\n    let mut high = 0;\n    //\
+  \ TODO: Count values above 10.\n    println!(\"high={high}\");\n}\n"
+expected_output: high=3
+hints:
+- Loop over values and compare each value with 10.
+- Increment high for each value > 10.
+test_cases:
+- name: threshold boundary
+  replace: '[4, 12, 15, 8, 20]'
+  with: '[10, 11, 12]'
+  expected_output: high=2

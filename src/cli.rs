@@ -12,6 +12,11 @@ pub struct Cli {
 pub enum Commands {
     /// Launch the Terminal User Interface
     Tui,
+    /// Choose the Forge interface and exercise language
+    Language {
+        /// Language to use: fr or en
+        language: Option<String>,
+    },
     /// Show a guided welcome and start the learning journey
     Start {
         /// Language to learn: 'java' or 'rust'

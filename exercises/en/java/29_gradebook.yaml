@@ -1,0 +1,16 @@
+id: java_29_gradebook
+title: Count passing students
+language: java
+difficulty: Intermediate
+chapter: 08 · Small programs
+lesson: A gradebook combines a map of names and scores with a conditional count.
+description: Print how many students scored at least 50.
+tip: Iterate over values(), since the names do not affect passing.
+template: "import java.util.Map;\npublic class Main {\n    public static void main(String[]\
+  \ args) {\n        Map<String, Integer> grades = Map.of(\"Ada\", 80, \"Lin\", 49, \"Mia\"\
+  , 50);\n        int passed = 0;\n        // TODO: Count scores of at least 50.\n        System.out.println(passed);\n\
+  \    }\n}\n"
+expected_output: '2'
+hints:
+- Loop through grades.values().
+- Increment passed when score >= 50.

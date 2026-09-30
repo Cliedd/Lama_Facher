@@ -1,0 +1,15 @@
+id: java_24_stream_map
+title: Transform each price
+language: java
+difficulty: Intermediate
+chapter: 07 · Safe transformations
+lesson: mapToInt transforms stream elements into integers; sum reduces them to one total.
+description: Add 1 to each price and print the resulting sum.
+tip: Transform values before calculating the total.
+template: "import java.util.Arrays;\npublic class Main {\n    public static void main(String[]\
+  \ args) {\n        int[] prices = {2, 4, 6};\n        // TODO: Map each price to price + 1,\
+  \ then sum.\n        System.out.println(0);\n    }\n}\n"
+expected_output: '15'
+hints:
+- Start with Arrays.stream(prices).
+- Use map(price -> price + 1).sum().

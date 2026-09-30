@@ -1,3 +1,4 @@
+use crate::core::settings::Locale;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use std::path::PathBuf;
@@ -20,14 +21,28 @@ impl Default for Config {
 }
 
 pub fn exercises_dir() -> PathBuf {
-    try_exercises_dir().unwrap_or_else(|_| PathBuf::from("exercises"))
+    exercises_dir_for(Locale::Fr)
+}
+
+pub fn exercises_dir_for(locale: Locale) -> PathBuf {
+    try_exercises_dir_for(locale).unwrap_or_else(|_| PathBuf::from("exercises"))
 }
 
 /// Locate the exercise catalog independently of the caller's working directory.
 /// An explicit FORGE_HOME always wins and reports an error if it is invalid.
 pub fn try_exercises_dir() -> std::io::Result<PathBuf> {
+    try_exercises_dir_for(Locale::Fr)
+}
+
+pub fn try_exercises_dir_for(locale: Locale) -> std::io::Result<PathBuf> {
     if let Some(home) = std::env::var_os("FORGE_HOME") {
-        return require_exercises(&PathBuf::from(home).join("exercises"));
+        let root = PathBuf::from(home).join("exercises");
+        let localized = if locale == Locale::En {
+            root.join("en")
+        } else {
+            root
+        };
+        return require_exercises(&localized);
     }
 
     let mut candidates = Vec::new();
@@ -41,7 +56,12 @@ pub fn try_exercises_dir() -> std::io::Result<PathBuf> {
     // Useful when running a development binary from outside the repository.
     candidates.push(PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("exercises"));
     candidates.push(PathBuf::from("exercises"));
-    for path in candidates {
+    for root in candidates {
+        let path = if locale == Locale::En {
+            root.join("en")
+        } else {
+            root
+        };
         if path.is_dir() {
             return Ok(path.canonicalize().unwrap_or(path));
         }

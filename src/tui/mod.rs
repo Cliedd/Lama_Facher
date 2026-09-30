@@ -76,6 +76,22 @@ fn main_loop<B: ratatui::backend::Backend>(
                 }
 
                 match app.mode {
+                    AppMode::Locale => match key.code {
+                        KeyCode::Char('q') => app.should_quit = true,
+                        KeyCode::Up | KeyCode::Char('k') => {
+                            app.locale_selection = app.locale_selection.saturating_sub(1)
+                        }
+                        KeyCode::Down | KeyCode::Char('j') => {
+                            app.locale_selection = (app.locale_selection + 1).min(1)
+                        }
+                        KeyCode::Enter => {
+                            app.choose_locale()?;
+                        }
+                        KeyCode::Esc if app.previous_mode != AppMode::Locale => {
+                            app.mode = app.previous_mode;
+                        }
+                        _ => {}
+                    },
                     AppMode::Home => match key.code {
                         KeyCode::Char('q') => app.should_quit = true,
                         KeyCode::Up | KeyCode::Char('k') => {
@@ -87,6 +103,7 @@ fn main_loop<B: ratatui::backend::Backend>(
                         }
                         KeyCode::Enter => app.choose_language(),
                         KeyCode::Char('h') | KeyCode::Char('?') => app.show_help(),
+                        KeyCode::Char('l') => app.open_locale_picker(),
                         _ => {}
                     },
                     AppMode::List => match key.code {
@@ -97,6 +114,7 @@ fn main_loop<B: ratatui::backend::Backend>(
                         }
                         KeyCode::Char('h') | KeyCode::Char('?') => app.show_help(),
                         KeyCode::Esc | KeyCode::Char('b') => app.mode = AppMode::Home,
+                        KeyCode::Char('l') => app.open_locale_picker(),
                         KeyCode::Char('q') => app.should_quit = true,
                         _ => {}
                     },

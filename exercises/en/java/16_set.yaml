@@ -1,0 +1,16 @@
+id: java_16_set
+title: Keep unique visitors
+language: java
+difficulty: Intermediate
+chapter: 05 · Text and collections
+lesson: A HashSet stores each distinct value once, regardless of duplicates.
+description: Add every visitor and print the number of unique names.
+tip: A set's size changes only when a new value is added.
+template: "import java.util.HashSet;\npublic class Main {\n    public static void main(String[]\
+  \ args) {\n        String[] visitors = {\"Ada\", \"Lin\", \"Ada\", \"Mia\"};\n        HashSet<String>\
+  \ unique = new HashSet<>();\n        // TODO: Add every visitor to unique.\n        System.out.println(unique.size());\n\
+  \    }\n}\n"
+expected_output: '3'
+hints:
+- Loop over visitors.
+- Inside the loop, call unique.add(visitor).

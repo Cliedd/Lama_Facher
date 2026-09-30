@@ -1,5 +1,6 @@
 use crate::core::errors::{ForgeError, Result};
 use crate::core::progress::{MergeReport, UserProgress};
+use crate::core::settings::{Locale, UserSettings};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
@@ -28,6 +29,28 @@ impl LocalStorage {
 
     pub fn progress_path(&self) -> PathBuf {
         self.base_dir.join("progress.json")
+    }
+
+    pub fn settings_path(&self) -> PathBuf {
+        self.base_dir.join("settings.json")
+    }
+
+    pub fn load_settings(&self) -> Result<UserSettings> {
+        let path = self.settings_path();
+        if !path.exists() {
+            return Ok(UserSettings::default());
+        }
+        let content = std::fs::read_to_string(path)?;
+        serde_json::from_str(&content)
+            .map_err(|e| ForgeError::Serialization(format!("invalid settings: {e}")))
+    }
+
+    pub fn save_locale(&self, locale: Locale) -> Result<()> {
+        std::fs::create_dir_all(&self.base_dir)?;
+        let content = serde_json::to_string_pretty(&UserSettings { locale })
+            .map_err(|e| ForgeError::Serialization(e.to_string()))?;
+        std::fs::write(self.settings_path(), content)?;
+        Ok(())
     }
 
     pub fn load_progress(&self) -> Result<UserProgress> {

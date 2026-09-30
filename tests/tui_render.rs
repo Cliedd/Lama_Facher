@@ -1,6 +1,7 @@
 //! A deterministic visual smoke test: Ratatui draws into memory, so CI needs no terminal.
 use forge::core::exercise::Exercise;
 use forge::core::progress::UserProgress;
+use forge::core::settings::Locale;
 use forge::storage::local::LocalStorage;
 use forge::tui::app::{App, AppMode};
 use forge::tui::ui;
@@ -36,9 +37,11 @@ fn test_app() -> App {
         ],
         language: None,
         home_selection: 0,
+        locale_selection: 0,
         selected_index: 0,
         progress: UserProgress::default(),
         storage: LocalStorage::at(temp.path().to_path_buf()),
+        locale: Locale::Fr,
         editor_state: EditorState::default(),
         diagnostics: Vec::new(),
         current_output: String::new(),

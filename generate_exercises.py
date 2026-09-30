@@ -18,6 +18,11 @@ CHAPTERS = [
     "Cas concrets", "Textes et collections", "Concevoir du code réutilisable",
     "Transformations sûres", "Petits programmes",
 ]
+CHAPTERS_EN = [
+    "Getting started", "Decisions and loops", "Reusable code and data",
+    "Concrete cases", "Text and collections", "Designing reusable code",
+    "Safe transformations", "Small programs",
+]
 
 
 def j(body):
@@ -428,13 +433,13 @@ CASES = {
 }
 
 
-def generate(language, catalog):
+def generate(language, catalog, locale="fr"):
     if len(catalog) != 30:
         raise ValueError(f"{language} catalog must contain exactly 30 exercises")
     slugs = [item[0] for item in catalog]
     if len(set(slugs)) != len(slugs):
         raise ValueError(f"{language} catalog contains duplicate slugs")
-    for slug, _, chapter, lesson, task, tip, template, output, hints in catalog:
+    for slug, title, chapter, lesson, task, tip, template, output, hints in catalog:
         if not (1 <= chapter <= len(CHAPTERS)):
             raise ValueError(f"{language}_{slug}: invalid chapter")
         if not all((lesson, task, tip, template, output)) or len(hints) != 2:
@@ -444,7 +449,7 @@ def generate(language, catalog):
         for name, old, _, _ in CASES[language].get(slug, []):
             if template.count(old) != 1:
                 raise ValueError(f"{language}_{slug}: case {name!r} has no unique source anchor")
-    directory = ROOT / language
+    directory = ROOT / language if locale == "fr" else ROOT / "en" / language
     directory.mkdir(parents=True, exist_ok=True)
     # The two known legacy naming schemes are the only files removed.
     for path in directory.glob("*.yaml"):
@@ -452,13 +457,22 @@ def generate(language, catalog):
             path.unlink()
     for number, (slug, title, chapter, lesson, task, tip, template, output, hints) in enumerate(catalog, 1):
         key = f"{language}_{number:02d}_{slug}"
-        title, lesson, task, tip, first_hint, second_hint = TEXTES[key]
+        if locale == "fr":
+            title, lesson, task, tip, first_hint, second_hint = TEXTES[key]
+            difficulty = "Débutant" if chapter <= 2 else "Intermédiaire"
+            chapter_name = CHAPTERS[chapter - 1]
+        else:
+            title, lesson, task, tip, first_hint, second_hint = (
+                title, lesson, task, tip, hints[0], hints[1]
+            )
+            difficulty = "Beginner" if chapter <= 2 else "Intermediate"
+            chapter_name = CHAPTERS_EN[chapter - 1]
         record = {
             "id": key,
             "title": title,
             "language": language,
-            "difficulty": "Débutant" if chapter <= 2 else "Intermédiaire",
-            "chapter": f"{chapter:02d} · {CHAPTERS[chapter - 1]}",
+            "difficulty": difficulty,
+            "chapter": f"{chapter:02d} · {chapter_name}",
             "lesson": lesson,
             "description": task,
             "tip": tip,
@@ -480,4 +494,6 @@ def generate(language, catalog):
 if __name__ == "__main__":
     generate("java", JAVA)
     generate("rust", RUST)
+    generate("java", JAVA, "en")
+    generate("rust", RUST, "en")
     print(f"Generated {len(JAVA) + len(RUST)} curated exercises")

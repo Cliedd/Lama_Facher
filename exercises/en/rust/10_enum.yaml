@@ -1,0 +1,14 @@
+id: rust_10_enum
+title: Match every status
+language: rust
+difficulty: Intermediate
+chapter: 04 · Concrete cases
+lesson: An enum names variants; match must cover every possible variant.
+description: Print ready for Status::Ready, and busy for Status::Busy.
+tip: Pattern matching translates states into user-facing text.
+template: "enum Status { Ready, Busy }\nfn main() {\n    let status = Status::Ready;\n    //\
+  \ TODO: Match status and print the matching text.\n    println!(\"unknown\");\n}\n"
+expected_output: ready
+hints:
+- Use match status with two arms.
+- Call println!("ready") in the Ready arm and println!("busy") in the Busy arm.

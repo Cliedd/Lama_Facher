@@ -92,6 +92,16 @@ impl Exercise {
             let entry = entry
                 .map_err(|e| ForgeError::Generic(format!("Cannot read exercise catalog: {e}")))?;
             let path = entry.path();
+            // The French catalog lives at exercises/{java,rust}; the English
+            // catalog is nested under exercises/en. Do not mix both locales
+            // when the default catalog root is loaded.
+            if dir.file_name().is_some_and(|name| name == "exercises")
+                && path
+                    .components()
+                    .any(|component| component.as_os_str() == "en")
+            {
+                continue;
+            }
             if path.is_file()
                 && (path
                     .extension()
